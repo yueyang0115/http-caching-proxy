@@ -16,9 +16,9 @@ void proxy::run() {
   send(server_fd, req_msg, sizeof(req_msg), 0);
   send(client_fd, "HTTP/1.1 200 OK\r\n\r\n", 19, 0);
 
+  fd_set readfds;
+  int nfds = server_fd > client_fd ? server_fd + 1 : client_fd + 1;
   while (1) {
-    fd_set readfds;
-    int nfds = server_fd > client_fd ? server_fd + 1 : client_fd + 1;
     FD_ZERO(&readfds);
     FD_SET(server_fd, &readfds);
     FD_SET(client_fd, &readfds);
