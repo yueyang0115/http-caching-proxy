@@ -61,7 +61,7 @@ int build_server(const char * port) {
   }
 
   //cout << "Waiting for connection on port " << port << endl;
-  freeaddrinfo(host_info_list);
+  // freeaddrinfo(host_info_list);
   return socket_fd;
 }
 
@@ -99,7 +99,7 @@ int build_client(const char * hostname, const char * port) {
     cerr << "  (" << hostname << "," << port << ")" << endl;
     exit(EXIT_FAILURE);
   }
-
+  std::cout << "Connect to server successfully\n";
   freeaddrinfo(host_info_list);
   return socket_fd;
 }
@@ -115,7 +115,6 @@ int server_accept(int socket_fd) {
     cerr << "Error: cannot accept connection on socket" << endl;
     exit(EXIT_FAILURE);
   }
-
   return client_connect_fd;
 }
 
