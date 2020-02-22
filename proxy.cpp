@@ -25,7 +25,10 @@ void * proxy::handle(void * info) {
   char req_msg[8192] = {0};
   recv(client_fd, req_msg, sizeof(req_msg), 0);
   std::cout << "received client request is:" << req_msg << std ::endl;
-  Parse * parser = new Parse(req_msg);
+  std::string input = std::string(req_msg, 8192);
+  
+  Parse * parser = new Parse(input);
+  parser->ParseInput();
   //int len = parser->host.length();
   //char * host[len + 1];
   //strcpy(host, parser->host.c_str());
