@@ -22,7 +22,7 @@ void * proxy::handle(void * info) {
   int client_fd = client_info->getFd();
   char req_msg[8192] = {0};
   recv(client_fd, req_msg, sizeof(req_msg), 0);
-
+  std::cout << "received client request is:" << req_msg << std ::endl;
   int server_fd_init = build_client("google.com", "443");
   char mes_buf[8192] = {0};
 
