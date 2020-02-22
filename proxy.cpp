@@ -1,10 +1,12 @@
 #include "proxy.h"
 
 #include <pthread.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "client_info.h"
 #include "function.h"
-
+#include "parse.h"
 void proxy::run() {
   Client_Info * client_info = new Client_Info();
   int temp_fd = build_server(this->port_num);
@@ -23,7 +25,15 @@ void * proxy::handle(void * info) {
   char req_msg[8192] = {0};
   recv(client_fd, req_msg, sizeof(req_msg), 0);
   std::cout << "received client request is:" << req_msg << std ::endl;
-  int server_fd_init = build_client("google.com", "443");
+  Parse * parser = new Parse(req_msg);
+  //int len = parser->host.length();
+  //char * host[len + 1];
+  //strcpy(host, parser->host.c_str());
+  const char * host = parser->host.c_str();
+  const char * port = parser->port.c_str();
+  std::cout << "host is:" << host << std::endl;
+  std::cout << "port is" << port << std::endl;
+  int server_fd_init = build_client(host, port);
   char mes_buf[8192] = {0};
 
   if (send(server_fd_init, req_msg, sizeof(req_msg), MSG_NOSIGNAL) == 0) {
