@@ -2,33 +2,25 @@
 
 #include <pthread.h>
 
+#include "client_info.h"
 #include "function.h"
-typedef struct _thr_arg {
-  size_t id;
-  struct sockaddr_storage client_addr;
-  int client_fd;
-  std::ofstream * log_stream_p;
-} thr_arg;
 
 void proxy::run() {
-  thr_arg * arg = (thr_arg *)malloc(sizeof(*arg));
-
+  Client_Info * client_info = new Client_Info();
   int temp_fd = build_server(this->port_num);
   int client_fd;
   while (1) {
     client_fd = server_accept(temp_fd);
     pthread_t thread;
-
-    arg->client_fd = client_fd;
-
-    pthread_create(&thread, NULL, handle, arg);
+    client_info->setFd(client_fd);
+    pthread_create(&thread, NULL, handle, client_info);
   }
 }
 
-void * proxy::handle(void * varg) {
-  thr_arg * arg = (thr_arg *)varg;
+void * proxy::handle(void * info) {
+  Client_Info * client_info = (Client_Info *)info;
+  int client_fd = client_info->getFd();
   char req_msg[8192] = {0};
-  int client_fd = arg->client_fd;
   recv(client_fd, req_msg, sizeof(req_msg), 0);
 
   int server_fd_init = build_client("google.com", "443");
