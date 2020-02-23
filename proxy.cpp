@@ -48,11 +48,19 @@ void * proxy::handle(void * info) {
     handleConnect(client_fd, server_fd);
   }
   else if (parser->method == "GET") {
-    char server_msg[8192] = {0};
-    recv(server_fd, server_msg, sizeof(server_msg), 0);
-    send(client_fd, server_msg, sizeof(server_msg), 0);
+    send(server_fd, req_msg, sizeof(req_msg), 0);
+    handleGet(client_fd, server_fd);
   }
   return NULL;
+}
+
+void proxy::handleGet(int client_fd, int server_fd) {
+  char server_msg[8192] = {0};
+  int len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+  if (len == 0) {
+    std::cout << "received message from server length = 0" << std::endl;
+  }
+  send(client_fd, server_msg, sizeof(server_msg), 0);
 }
 
 void proxy::handleConnect(int client_fd, int server_fd) {

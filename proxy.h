@@ -11,4 +11,5 @@ class proxy {
   void run();
   static void * handle(void * arg);
   static void handleConnect(int client_fd, int server_fd);
+  static void handleGet(int client_fd, int server_fd);
 };
