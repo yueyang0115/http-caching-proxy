@@ -16,8 +16,8 @@ class Parse {
 
  public:
  Parse(std::string request): input(request){
-    std::cout << "request origin: " << request << std::endl;
-    std::cout<<"request in parse function is"<<input<<std::endl;
+    //    std::cout << "request origin: " << request << std::endl;
+    //std::cout<<"request in parse function is"<<input<<std::endl;
   }
   void ParseInput();
 };

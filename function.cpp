@@ -26,7 +26,7 @@ int build_server(const char * port) {
   status = getaddrinfo(hostname, port, &host_info, &host_info_list);
   if (status != 0) {
     cerr << "Error: cannot get address info for host" << endl;
-    cerr << "  (" << hostname << "," << port << ")" << endl;
+    cerr << "  (" << hostname << " ," << port << ")" << endl;
     exit(EXIT_FAILURE);
   }
 
