@@ -2,6 +2,11 @@
 #include <iostream>
 #include <cstring>
 
+void Parse::ParseMethod(){
+  size_t method_end = input.find_first_of(" ");
+  method = input.substr(0,method_end);
+}
+
 void Parse::ParseInput() {
   std::cout<<"getting into parse\n";
   //std::cout<<"input is\n"<<input<<std::endl;

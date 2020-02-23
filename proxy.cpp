@@ -31,11 +31,13 @@ void * proxy::handle(void * info) {
   std::string input = std::string(req_msg, 8192);
 
   Parse * parser = new Parse(input);
-  parser->ParseInput();
+  //parser->ParseInput();
   const char * host = parser->host.c_str();
   const char * port = parser->port.c_str();
+  const char * method = parser->method.c_str();
   std::cout << "host is " << host << "end\n";
-  std::cout << "port is " << port << "end\n";  
+  std::cout << "port is " << port << "end\n";
+  std::cout << "method is " << method << "end\n";
   int server_fd = build_client(host, port);
   
   char mes_buf[8192] = {0};
@@ -48,7 +50,7 @@ void * proxy::handle(void * info) {
   /*if (recv(server_fd, mes_buf, sizeof(mes_buf), 0) == 0) {
     std::cout << "before while loop closed\n";
     }*/
- 
+  if(parser->method=="CONNECT"){
   send(client_fd, "HTTP/1.1 200 OK\r\n\r\n", 19, 0);
   server_fd = build_client(host, port);
 
@@ -77,4 +79,8 @@ void * proxy::handle(void * info) {
     }
   }
   return NULL;
+  }
+  else{
+
+  }
 }
