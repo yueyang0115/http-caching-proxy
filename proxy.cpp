@@ -32,23 +32,16 @@ void * proxy::handle(void * info) {
 
   Parse * parser = new Parse(input);
   parser->ParseInput();
-  //int len = parser->host.length();
-  //char * host[len + 1];
-  //strcpy(host, parser->host.c_str());
   const char * host = parser->host.c_str();
   const char * port = parser->port.c_str();
   std::cout << "host is " << host << "end\n";
-  std::cout << "port is " << port << "end\n";
-
-  
+  std::cout << "port is " << port << "end\n";  
   int server_fd = build_client(host, port);
-  //int server_fd = build_client("www.google.com", "443");
-
+  
   char mes_buf[8192] = {0};
   if(server_fd == -1){
     std::cout << "Error in build client!\n";
   }
-  //int server_fd = build_client("www.google.com", "443");
   if (send(server_fd, req_msg, sizeof(req_msg), MSG_NOSIGNAL) == 0) {
     std::cout << "Message send to server is 0\n";
   }
@@ -57,9 +50,8 @@ void * proxy::handle(void * info) {
     }*/
  
   send(client_fd, "HTTP/1.1 200 OK\r\n\r\n", 19, 0);
-  
   server_fd = build_client(host, port);
-  //  server_fd = build_client("www.google.com", "443");
+
   fd_set readfds;
   int nfds = server_fd > client_fd ? server_fd + 1 : client_fd + 1;
   while (1) {
@@ -75,7 +67,7 @@ void * proxy::handle(void * info) {
         len = recv(fd[i], message, sizeof(message), 0);
         if (len == 0) {
 	  //          std::cout << "Error: Receive length 0\n";
-          break;
+	  break;
         }
         else {
           send(fd[1 - i], message, len, 0);
