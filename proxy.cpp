@@ -63,8 +63,13 @@ void * proxy::handle(void * info) {
     handleConnect(client_fd, server_fd);
   }
   else if (parser->method == "GET") {
-    send(server_fd, req_msg, sizeof(req_msg), 0);
+    send(server_fd, req_msg, len, 0);
     handleGet(client_fd, server_fd);
+  }
+  else if(parser->method == "POST"){
+    int post_len = getLength(req_msg, len);
+    if(post_len!=-1){   
+    }
   }
   return NULL;
 }
@@ -72,14 +77,27 @@ void * proxy::handle(void * info) {
 void proxy::handleGet(int client_fd, int server_fd) {
   char server_msg[28000] = {0};
   int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);
-  std::cout << "Receive server response is: " << server_msg << std::endl;  
+  std::cout << "Receive server response is: " << server_msg << std::endl;
+  bool is_chunk = findChunk(server_msg,mes_len);
+  if(is_chunk){
+    send(client_fd,server_msg,mes_len,0);
+    char chunked_msg[28000] = {0};
+    while(1){
+      int len = recv(server_fd,chunked_msg,sizeof(chunked_msg),0);
+      if(len<=0){
+	return;
+      }
+      send(client_fd,chunked_msg,len,0);
+    }
+  }
+  else{
   int content_len = getLength(server_msg, mes_len);
   //send(client_fd, server_msg, mes_len, 0);
   if (content_len != -1) {
     std::cout<<"\n content_len = "<<content_len<<std::endl;
     int len = 0;
     Response response;
-    int total_len = 0;
+    /* int total_len = 0;
     std::string msg(server_msg, mes_len);
     while (total_len < content_len) {
       len = recv(server_fd, server_msg, sizeof(server_msg), 0);
@@ -88,7 +106,8 @@ void proxy::handleGet(int client_fd, int server_fd) {
       msg += temp;
       total_len += len;
     }
-    std::cout<<"\n after while loop, total length = "<<total_len<<std::endl;
+    std::cout<<"\n after while loop, total length = "<<total_len<<std::endl;*/
+    std::string msg = sendContentLen(server_fd,server_msg,mes_len,content_len);
     char send_response[msg.length() + 1];
     strcpy(send_response, msg.c_str());
     //std::cout << "Send client response is: " << send_response << std::endl;
@@ -97,6 +116,30 @@ void proxy::handleGet(int client_fd, int server_fd) {
   else{
     std::cout<<"---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
   }
+  }
+}
+
+std::string proxy::sendContentLen(int send_fd,char *server_msg,int mes_len, int content_len){
+  int total_len = 0;
+  int len = 0;
+    std::string msg(server_msg, mes_len);
+    while (total_len < content_len) {
+      len = recv(send_fd, server_msg, sizeof(server_msg), 0);
+      std::cout<<"\n in while loop, received length = "<<len<<std::endl;
+      std::string temp(server_msg, len);
+      msg += temp;
+      total_len += len;
+    }
+    std::cout<<"\n after while loop, total length = "<<total_len<<std::endl;
+    return msg;
+}
+bool proxy::findChunk(char * server_msg, int mes_len){
+  std::string msg(server_msg,mes_len);
+  size_t pos;
+  if((pos=msg.find("chunked"))!=std::string::npos){
+    return true;
+  }
+  return false;
 }
 
 int proxy::getLength(char * server_msg, int mes_len) {
@@ -108,7 +151,7 @@ int proxy::getLength(char * server_msg, int mes_len) {
     std::cout<<"head_end="<<head_end<<std::endl;
     int part_body_len = mes_len-static_cast<int>(head_end)-8;
     std::cout<<"cast<head_end>="<<static_cast<int>(head_end)<<std::endl;
-							      std::cout<<"part_body_len = "<<part_body_len<<std::endl;
+    std::cout<<"part_body_len = "<<part_body_len<<std::endl;
     size_t end = msg.find("\r\n", pos);
     std::string content_len = msg.substr(pos + 16, end - pos - 16);
     std::cout << "conten_length string is: " << content_len << std::endl;
