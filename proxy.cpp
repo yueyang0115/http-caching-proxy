@@ -6,15 +6,22 @@
 
 #include "client_info.h"
 #include "function.h"
-
+#include "response.h"
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void proxy::run() {
   Client_Info * client_info = new Client_Info();
   int temp_fd = build_server(this->port_num);
+  if(temp_fd==-1){
+    return;
+  }
   int client_fd;
   while (1) {
     client_fd = server_accept(temp_fd);
+    if(client_fd==-1){
+      std::cout<<"connect client error"<<std::endl;
+      return;
+    }
     pthread_t thread;
     client_info->setFd(client_fd);
     pthread_create(&thread, NULL, handle, client_info);
@@ -25,11 +32,19 @@ void * proxy::handle(void * info) {
   Client_Info * client_info = (Client_Info *)info;
   int client_fd = client_info->getFd();
 
-  char req_msg[8192] = {0};
-  recv(client_fd, req_msg, sizeof(req_msg), 0);
-  std::cout << "received client request is:" << req_msg << std ::endl;
-  std::string input = std::string(req_msg, 8192);
-
+  char req_msg[65536] = {0};
+  int len = recv(client_fd, req_msg, sizeof(req_msg), 0);
+  if(len<=0){
+    
+    return NULL;
+  }
+  std::cout << "received client request is:" << req_msg <<"end"<< std ::endl;
+  std::cout << "received client request's length:" << len <<"end"<< std ::endl;
+  
+  std::string input = std::string(req_msg, 65536);
+  if(input==""){
+    return NULL;
+  }
   Parse * parser = new Parse(input);
   const char * method = parser->method.c_str();
   std::cout << "method is " << method << "end\n";
@@ -42,6 +57,7 @@ void * proxy::handle(void * info) {
   int server_fd = build_client(host, port);
   if (server_fd == -1) {
     std::cout << "Error in build client!\n";
+    return NULL;
   }
 
   if (parser->method == "CONNECT") {
@@ -55,19 +71,25 @@ void * proxy::handle(void * info) {
 }
 
 void proxy::handleGet(int client_fd, int server_fd) {
-  char server_msg[8192] = {0};
-  int mes_len =recv(server_fd, server_msg, sizeof(server_msg), 0);
-  send(client_fd, server_msg, mes_len, MSG_NOSIGNAL);
-  int len;
-  while((len= recv(server_fd, server_msg, sizeof(server_msg), 0))>0){
-     send(client_fd, server_msg, len, MSG_NOSIGNAL);
+  char server_msg[28000] = {0};
+  int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+  send(client_fd, server_msg, mes_len, 0);
+
+  int len = 0;
+  Response response;
+
+  while ((len = recv(server_fd, server_msg, sizeof(server_msg), 0)) > 0) {
+    response.AppendResponse(server_msg, len);
+    memset(server_msg, 0, sizeof(server_msg));
+    //send(client_fd, server_msg, len, MSG_NOSIGNAL);
   }
+  char send_response[response.getSize() + 1];
+  strcpy(send_response, response.getResponse());
+  std::cout << "Send client response is: " << send_response << std::endl;
+  send(client_fd, send_response, sizeof(send_response), MSG_NOSIGNAL);
   if (len == 0) {
     std::cout << "received message from server length = 0" << std::endl;
   }
-  if (close(client_fd) == -1 || close(server_fd) == -1) {
-      std::perror("close");
-    }
 }
 
 void proxy::handleConnect(int client_fd, int server_fd) {
@@ -89,19 +111,20 @@ void proxy::handleConnect(int client_fd, int server_fd) {
     FD_SET(client_fd, &readfds);
     select(nfds, &readfds, NULL, NULL, NULL);
     int fd[2] = {server_fd, client_fd};
+    int actual_fd;
+    int len;
+    char message[65536] = {0};
     for (int i = 0; i < 2; i++) {
       if (FD_ISSET(fd[i], &readfds)) {
-        int len;
-        char message[8192] = {0};
-        len = recv(fd[i], message, sizeof(message), 0);
+	len = recv(fd[i], message, sizeof(message), 0);
         if (len == 0) {
           //          std::cout << "Error: Receive length 0\n";
-          break;
+	  return;
         }
-        else {
+	else {
           send(fd[1 - i], message, len, 0);
           // std::cout << "Error in Sending!\n" << fd[i] << std::endl;
-        }
+	}
       }
     }
   }

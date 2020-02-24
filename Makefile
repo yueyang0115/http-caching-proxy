@@ -1,7 +1,7 @@
 all: main
 
-main: main.cpp function.cpp proxy.cpp proxy.h parse.cpp
-	g++ -g  -o main main.cpp function.cpp proxy.cpp parse.cpp -lpthread
+main: main.cpp function.cpp proxy.cpp proxy.h parse.cpp response.cpp
+	g++ -g  -o main main.cpp function.cpp proxy.cpp parse.cpp response.cpp -lpthread
 
 .PHONY:
 	clean
