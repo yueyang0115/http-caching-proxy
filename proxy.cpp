@@ -72,37 +72,53 @@ void * proxy::handle(void * info) {
 void proxy::handleGet(int client_fd, int server_fd) {
   char server_msg[28000] = {0};
   int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+  std::cout << "Receive server response is: " << server_msg << std::endl;  
   int content_len = getLength(server_msg, mes_len);
   //send(client_fd, server_msg, mes_len, 0);
   if (content_len != -1) {
+    std::cout<<"\n content_len = "<<content_len<<std::endl;
     int len = 0;
     Response response;
     int total_len = 0;
     std::string msg(server_msg, mes_len);
     while (total_len < content_len) {
       len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+      std::cout<<"\n in while loop, received length = "<<len<<std::endl;
       std::string temp(server_msg, len);
       msg += temp;
       total_len += len;
     }
-    char send_response[msg.length()];
+    std::cout<<"\n after while loop, total length = "<<total_len<<std::endl;
+    char send_response[msg.length() + 1];
     strcpy(send_response, msg.c_str());
-    std::cout << "Send client response is: " << send_response << std::endl;
+    //std::cout << "Send client response is: " << send_response << std::endl;
     send(client_fd, send_response, sizeof(send_response), MSG_NOSIGNAL);
+  }
+  else{
+    std::cout<<"---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
   }
 }
 
 int proxy::getLength(char * server_msg, int mes_len) {
+  std::cout<<"mes_len = "<<mes_len<<std::endl;
   std::string msg(server_msg, mes_len);
   size_t pos;
   if ((pos = msg.find("Content-Length: ")) != std::string::npos) {
+    size_t head_end = msg.find("\r\n\r\n");
+    std::cout<<"head_end="<<head_end<<std::endl;
+    int part_body_len = mes_len-static_cast<int>(head_end)-8;
+    std::cout<<"cast<head_end>="<<static_cast<int>(head_end)<<std::endl;
+							      std::cout<<"part_body_len = "<<part_body_len<<std::endl;
     size_t end = msg.find("\r\n", pos);
-    std::string content_len = msg.substr(pos + 16, end - pos - 17);
+    std::string content_len = msg.substr(pos + 16, end - pos - 16);
+    std::cout << "conten_length string is: " << content_len << std::endl;
+    std::cout << "string length = " << content_len.length() << std::endl;
     int num = 0;
     for (size_t i = 0; i < content_len.length(); i++) {
       num = num * 10 + (content_len[i] - '0');
     }
-    return num;
+    std::cout << "calculate num =" << num << std::endl;
+    return num-part_body_len-4;
   }
   return -1;
 }
