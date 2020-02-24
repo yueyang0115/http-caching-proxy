@@ -1,0 +1,4 @@
+#include "response.h"
+
+void Response::AppendResponse(std::string new_part) {
+}
