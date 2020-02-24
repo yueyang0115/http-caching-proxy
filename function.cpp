@@ -80,7 +80,7 @@ int build_client(const char * hostname, const char * port) {
   if (status != 0) {
     cerr << "Error: cannot get address info for host" << endl;
     cerr << "  (" << hostname << "," << port << ")" << endl;
-    return -1;  
+    return -1;
   }
 
   socket_fd = socket(host_info_list->ai_family,
@@ -105,7 +105,7 @@ int build_client(const char * hostname, const char * port) {
   return socket_fd;
 }
 
-int server_accept(int socket_fd) {
+int server_accept(int socket_fd, std::string * ip) {
   struct sockaddr_storage socket_addr;
   socklen_t socket_addr_len = sizeof(socket_addr);
   int client_connect_fd;
@@ -116,6 +116,9 @@ int server_accept(int socket_fd) {
     cerr << "Error: cannot accept connection on socket" << endl;
     return -1;
   }
+  struct sockaddr_in * addr = (struct sockaddr_in *)&socket_addr;
+  *ip = inet_ntoa(addr->sin_addr);
+
   return client_connect_fd;
 }
 

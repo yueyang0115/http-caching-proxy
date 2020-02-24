@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-class Parse {
+class Request {
  public:
   std::string host;
   std::string port;
@@ -14,15 +14,17 @@ class Parse {
   std::string log_info;
   std::string send;
   std::string input;
+  std::string line;
 
  public:
-  Parse(std::string request) : input(request) {
+  Request(std::string request) : input(request) {
     //    std::cout << "request origin: " << request << std::endl;
     //std::cout<<"request in parse function is"<<input<<std::endl;
     ParseInput();
     ParseMethod();
+    ParseLine();
   }
-
+  void ParseLine();
   void ParseInput();
   void ParseMethod();
 };
