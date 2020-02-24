@@ -56,11 +56,18 @@ void * proxy::handle(void * info) {
 
 void proxy::handleGet(int client_fd, int server_fd) {
   char server_msg[8192] = {0};
-  int len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+  int mes_len =recv(server_fd, server_msg, sizeof(server_msg), 0);
+  send(client_fd, server_msg, mes_len, MSG_NOSIGNAL);
+  int len;
+  while((len= recv(server_fd, server_msg, sizeof(server_msg), 0))>0){
+     send(client_fd, server_msg, len, MSG_NOSIGNAL);
+  }
   if (len == 0) {
     std::cout << "received message from server length = 0" << std::endl;
   }
-  send(client_fd, server_msg, sizeof(server_msg), 0);
+  if (close(client_fd) == -1 || close(server_fd) == -1) {
+      std::perror("close");
+    }
 }
 
 void proxy::handleConnect(int client_fd, int server_fd) {
