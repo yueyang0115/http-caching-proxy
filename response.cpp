@@ -10,3 +10,8 @@ const char * Response::getResponse() {
 int Response::getSize() {
   return response.length();
 }
+void Response::ParseLine(char *first_part,int len){
+  std::string first_part_str(first_part,len);
+  size_t pos = first_part_str.find_first_of("\r\n");
+  line = first_part_str.substr(0, pos);
+}

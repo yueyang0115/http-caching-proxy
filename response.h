@@ -6,10 +6,13 @@
 class Response {
  private:
   std::string response;
-
+  std::string line;
+  
  public:
   Response() : response("") {}
-  void AppendResponse(char * new_part, int len);
+  std::string getLine(){return line;}
+  void ParseLine(char *first_part,int len);
+  void AppendResponse(char *,int len);
   int getSize();
   const char * getResponse();
 };

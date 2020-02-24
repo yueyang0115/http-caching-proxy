@@ -10,9 +10,9 @@ class proxy {
   proxy(const char * myport) : port_num(myport) {}
   void run();
   static void * handle(void * arg);
-  static void handleConnect(int client_fd, int server_fd);
-  static void handleGet(int client_fd, int server_fd);
-  static void handlePOST(int client_fd,int server_fd,char * req_msg,int len);
+  static void handleConnect(int client_fd, int server_fd, int id);
+  static void handleGet(int client_fd, int server_fd, int id, const char *host);
+  static void handlePOST(int client_fd,int server_fd,char * req_msg,int len, int id, const char *host);
   static std::string sendContentLen(int send_fd,
                                     char * server_msg,
                                     int mes_len,

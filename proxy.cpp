@@ -41,7 +41,7 @@ void * proxy::handle(void * info) {
   int client_fd = client_info->getFd();
 
   char req_msg[65536] = {0};
-  int len = recv(client_fd, req_msg, sizeof(req_msg), 0);
+  int len = recv(client_fd, req_msg, sizeof(req_msg), 0);// fisrt request from client
   if (len <= 0) {
     return NULL;
   }
@@ -51,7 +51,7 @@ void * proxy::handle(void * info) {
   }
   Request * parser = new Request(input);
   pthread_mutex_lock(&mutex);
-  logFile << client_info->getID() << "\"" << parser->line << "\" from "
+  logFile << client_info->getID() << ": \"" << parser->line << "\" from " 
           << client_info->getIP() << " @ " << getTime() << std::endl;
   pthread_mutex_unlock(&mutex);
 
@@ -60,48 +60,58 @@ void * proxy::handle(void * info) {
 
   const char * method = parser->method.c_str();
   std::cout << "method is " << method << "end\n";
-
   const char * host = parser->host.c_str();
   const char * port = parser->port.c_str();
   std::cout << "host is " << host << "end\n";
   std::cout << "port is " << port << "end\n";
 
-  int server_fd = build_client(host, port);
+  int server_fd = build_client(host, port);//connect to server
   if (server_fd == -1) {
     std::cout << "Error in build client!\n";
     return NULL;
   }
+  pthread_mutex_lock(&mutex);
+  logFile << client_info->getID() <<": " << "Requesting \""<< parser->line << "\" from "
+          << host << std::endl;
+  pthread_mutex_unlock(&mutex);
+  
 
   if (parser->method == "CONNECT") {
-    handleConnect(client_fd, server_fd);
+    handleConnect(client_fd, server_fd,client_info->getID());
   }
   else if (parser->method == "GET") {
     send(server_fd, req_msg, len, 0);
-    handleGet(client_fd, server_fd);
+    handleGet(client_fd, server_fd,client_info->getID(),host);
   }
   else if (parser->method == "POST") {
-    handlePOST(client_fd,server_fd,req_msg,len);
+    handlePOST(client_fd,server_fd,req_msg,len,client_info->getID(),host);
   }
   close(server_fd);
   close(client_fd);
   return NULL;
 }
 
-void proxy::handlePOST(int client_fd,int server_fd,char * req_msg,int len){
-   int post_len = getLength(req_msg, len);
+void proxy::handlePOST(int client_fd,int server_fd,char * req_msg,int len, int id, const char * host){
+  int post_len = getLength(req_msg, len);//get length of client request
     if (post_len != -1) {
       std::string request = sendContentLen(client_fd, req_msg, len, post_len);
       char send_request[request.length() + 1];
       strcpy(send_request, request.c_str());
       std::cout << "begin sending to server" << std::endl;
-      send(server_fd, send_request, sizeof(send_request), MSG_NOSIGNAL);
-      char response[28000] = {0};
-      int response_len = recv(server_fd, response, sizeof(response), 0);
+      send(server_fd, send_request, sizeof(send_request), MSG_NOSIGNAL);// send all the request info from client to server
+      char response[65536] = {0};
+      int response_len = recv(server_fd, response, sizeof(response), MSG_WAITALL);//first time received response from server
       if (response_len != 0) {
-        std::cout << "receive response from server which is:" << response << std::endl;
-	std::cout << "begin sending to client" << std::endl;
-	send(client_fd, response, response_len, MSG_NOSIGNAL);
-	std::cout << "finish sending to clinet" << std::endl;
+	 Response res;
+	 res.ParseLine(req_msg,len);
+	 pthread_mutex_lock(&mutex);
+	 logFile << id << ": Received \"" << res.getLine() << "\" from "<< host << std::endl;
+	 pthread_mutex_unlock(&mutex);
+	 
+	 std::cout << "receive response from server which is:" << response << std::endl;
+	 std::cout << "begin sending to client" << std::endl;
+	 send(client_fd, response, response_len, MSG_NOSIGNAL);
+	 std::cout << "finish sending to clinet" << std::endl;
       }
       else{
 	std::cout << "server socket closed!\n"; 
@@ -109,15 +119,25 @@ void proxy::handlePOST(int client_fd,int server_fd,char * req_msg,int len){
     }
 
 }
-void proxy::handleGet(int client_fd, int server_fd) {
+void proxy::handleGet(int client_fd, int server_fd, int id,const char *host) {
   char server_msg[28000] = {0};
-  int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);
+  int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);//received first response from server(all header, part body)
   std::cout << "Receive server response is: " << server_msg << std::endl;
+  if(mes_len==0){
+    return;
+  }
+  Response response;
+  response.ParseLine(server_msg,mes_len);
+  pthread_mutex_lock(&mutex);
+  logFile << id << ": Received \"" << response.getLine() << "\" from "
+          << host << std::endl;
+  pthread_mutex_unlock(&mutex);
+  
   bool is_chunk = findChunk(server_msg, mes_len);
   if (is_chunk) {
-    send(client_fd, server_msg, mes_len, 0);
+    send(client_fd, server_msg, mes_len, 0);//send first response to server
     char chunked_msg[28000] = {0};
-    while (1) {
+    while (1) {//receive and send remaining message
       int len = recv(server_fd, chunked_msg, sizeof(chunked_msg), 0);
       if (len <= 0) {
         return;
@@ -126,23 +146,13 @@ void proxy::handleGet(int client_fd, int server_fd) {
     }
   }
   else {
-    int content_len = getLength(server_msg, mes_len);
+    int content_len = getLength(server_msg, mes_len);//get content length
     //send(client_fd, server_msg, mes_len, 0);
     if (content_len != -1) {
       std::cout << "\n content_len = " << content_len << std::endl;
       int len = 0;
       Response response;
-      /* int total_len = 0;
-    std::string msg(server_msg, mes_len);
-    while (total_len < content_len) {
-      len = recv(server_fd, server_msg, sizeof(server_msg), 0);
-      std::cout<<"\n in while loop, received length = "<<len<<std::endl;
-      std::string temp(server_msg, len);
-      msg += temp;
-      total_len += len;
-    }
-    std::cout<<"\n after while loop, total length = "<<total_len<<std::endl;*/
-      std::string msg = sendContentLen(server_fd, server_msg, mes_len, content_len);
+      std::string msg = sendContentLen(server_fd, server_msg, mes_len, content_len);//get the entire message 
       char send_response[msg.length() + 1];
       strcpy(send_response, msg.c_str());
       //std::cout << "Send client response is: " << send_response << std::endl;
@@ -174,6 +184,7 @@ std::string proxy::sendContentLen(int send_fd,
   std::cout << "\n after while loop, total length = " << total_len << std::endl;
   return msg;
 }
+
 bool proxy::findChunk(char * server_msg, int mes_len) {
   std::string msg(server_msg, mes_len);
   size_t pos;
@@ -207,7 +218,7 @@ int proxy::getLength(char * server_msg, int mes_len) {
   return -1;
 }
 
-void proxy::handleConnect(int client_fd, int server_fd) {
+void proxy::handleConnect(int client_fd, int server_fd, int id) {
   send(client_fd, "HTTP/1.1 200 OK\r\n\r\n", 19, 0);
 
   fd_set readfds;
@@ -234,6 +245,10 @@ void proxy::handleConnect(int client_fd, int server_fd) {
       }
     }
   }
+   pthread_mutex_lock(&mutex);
+   logFile << id << "Tunnel closed"<< std::endl;
+   pthread_mutex_unlock(&mutex);
+
 }
 
 std::string proxy::getTime() {
