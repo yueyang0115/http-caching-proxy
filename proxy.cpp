@@ -11,7 +11,7 @@
 #include "function.h"
 #include "response.h"
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-ofstream logFile("/var/log/erss/proxy.log");
+ofstream logFile("proxy.log");
 void proxy::run() {
   Client_Info * client_info = new Client_Info();
   int temp_fd = build_server(this->port_num);
@@ -25,7 +25,7 @@ void proxy::run() {
     client_fd = server_accept(temp_fd, &ip);
     if (client_fd == -1) {
       std::cout << "connect client error" << std::endl;
-      return;
+     continue;
     }
     pthread_t thread;
     client_info->setFd(client_fd);
@@ -80,26 +80,35 @@ void * proxy::handle(void * info) {
     handleGet(client_fd, server_fd);
   }
   else if (parser->method == "POST") {
-    int post_len = getLength(req_msg, len);
+    handlePOST(client_fd,server_fd,req_msg,len);
+  }
+  close(server_fd);
+  close(client_fd);
+  return NULL;
+}
+
+void proxy::handlePOST(int client_fd,int server_fd,char * req_msg,int len){
+   int post_len = getLength(req_msg, len);
     if (post_len != -1) {
       std::string request = sendContentLen(client_fd, req_msg, len, post_len);
       char send_request[request.length() + 1];
       strcpy(send_request, request.c_str());
       std::cout << "begin sending to server" << std::endl;
       send(server_fd, send_request, sizeof(send_request), MSG_NOSIGNAL);
-      char response[28000];
+      char response[28000] = {0};
       int response_len = recv(server_fd, response, sizeof(response), 0);
       if (response_len != 0) {
         std::cout << "receive response from server which is:" << response << std::endl;
+	std::cout << "begin sending to client" << std::endl;
+	send(client_fd, response, response_len, MSG_NOSIGNAL);
+	std::cout << "finish sending to clinet" << std::endl;
       }
-      std::cout << "begin sending to client" << std::endl;
-      send(client_fd, response, response_len, MSG_NOSIGNAL);
-      std::cout << "finish sending to clinet" << std::endl;
+      else{
+	std::cout << "server socket closed!\n"; 
+      }
     }
-  }
-  return NULL;
-}
 
+}
 void proxy::handleGet(int client_fd, int server_fd) {
   char server_msg[28000] = {0};
   int mes_len = recv(server_fd, server_msg, sizeof(server_msg), 0);
@@ -146,8 +155,6 @@ void proxy::handleGet(int client_fd, int server_fd) {
                 << std::endl;
     }
   }
-  close(server_fd);
-  close(client_fd);
 }
 
 std::string proxy::sendContentLen(int send_fd,
