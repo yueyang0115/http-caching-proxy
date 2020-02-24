@@ -69,6 +69,19 @@ void * proxy::handle(void * info) {
   else if(parser->method == "POST"){
     int post_len = getLength(req_msg, len);
     if(post_len!=-1){   
+      std::string request =  sendContentLen(client_fd,req_msg,len, post_len);
+      char send_request[request.length() + 1];
+      strcpy(send_request, request.c_str());
+      std::cout<<"begin sending to server"<<std::endl;
+      send(server_fd, send_request, sizeof(send_request), MSG_NOSIGNAL);
+      char response[28000];
+      int response_len = recv(server_fd,response,sizeof(response),0);
+      if(response_len!=0){
+	std::cout<<"receive response from server which is:"<<response<<std::endl;
+      }
+       std::cout<<"begin sending to client"<<std::endl;
+      send(client_fd, response, response_len, MSG_NOSIGNAL);
+      std::cout<<"finish sending to clinet"<<std::endl;
     }
   }
   return NULL;
@@ -114,9 +127,11 @@ void proxy::handleGet(int client_fd, int server_fd) {
     send(client_fd, send_response, sizeof(send_response), MSG_NOSIGNAL);
   }
   else{
-    std::cout<<"---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+    std::cout<<"no content-length field------------------------------------------------------------------------------------------------------------------"<<std::endl;
   }
   }
+  close(server_fd);
+  close(client_fd);
 }
 
 std::string proxy::sendContentLen(int send_fd,char *server_msg,int mes_len, int content_len){
