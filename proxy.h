@@ -1,7 +1,7 @@
 #include "function.h"
 #include "parse.h"
 #include "pthread.h"
-
+#include "response.h"
 class proxy {
  private:
   const char * port_num;
@@ -11,8 +11,13 @@ class proxy {
   void run();
   static void * handle(void * arg);
   static void handleConnect(int client_fd, int server_fd, int id);
-  static void handleGet(int client_fd, int server_fd, int id, const char *host);
-  static void handlePOST(int client_fd,int server_fd,char * req_msg,int len, int id, const char *host);
+  static void handleGet(int client_fd, int server_fd, int id, const char * host);
+  static void handlePOST(int client_fd,
+                         int server_fd,
+                         char * req_msg,
+                         int len,
+                         int id,
+                         const char * host);
   static std::string sendContentLen(int send_fd,
                                     char * server_msg,
                                     int mes_len,
@@ -20,4 +25,5 @@ class proxy {
   static int getLength(char * server_msg, int mes_len);
   static bool findChunk(char * server_msg, int mes_len);
   static std::string getTime();
+  static bool CheckTime(Response & rep);
 };
