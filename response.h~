@@ -1,7 +1,0 @@
-#include <cstdio>
-#include <cstdlib>
-
-class Response() {
- public:
-  std::string server_response;
-}

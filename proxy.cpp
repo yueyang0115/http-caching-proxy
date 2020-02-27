@@ -103,6 +103,7 @@ void * proxy::handle(void * info) {
       handleGet(client_fd, server_fd, client_info->getID(), host, parser->line);
     }
     else {
+      std::cout << "[DEBUG] Check it->second.Etag is: " << it->second.ETag << std::endl;
       valid =
           CheckTime(server_fd, *parser, parser->line, it->second, client_info->getID());
 
@@ -159,14 +160,14 @@ bool proxy::CheckTime(int server_fd,
                       std::string req_line,
                       Response & rep,
                       int id) {
+  std::cout << "[DEBUG] Response max-age: " << rep.max_age << std::endl;
+  std::cout << "[DEBUG] Response Expires: " << rep.exp_str << std::endl;
+  std::cout << "[DEBUG] Response Etag: " << rep.ETag << std::endl;
+
   if (rep.max_age != -1) {
     time_t curr_time = time(0);
     time_t rep_time = mktime(rep.response_time.getTimeStruct()) - 18000;
     int max_age = rep.max_age;
-    std::cout << "max_age==" << max_age << std::endl;
-    std::cout << "curr_time==" << curr_time << std::endl;
-    std::cout << "rep_time==" << rep_time << std::endl;
-    std::cout << "rep_time+max_age" << rep_time + max_age << std::endl;
     if (rep_time + max_age <= curr_time) {
       Cache.erase(req_line);
       std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
@@ -206,18 +207,28 @@ bool proxy::CheckTime(int server_fd,
   }
   //if (it->second.nocache_flag) {
   if (rep.ETag != "") {
-    size_t end_pos = parser.input.find_first_of("\r\n\r\n");
-    std::cout << "before insert etag, input=" << parser.input << std::endl;
+    std::string add_header =
+        "GET / HTTP/1.1\r\nIf-None-Match: " + rep.ETag.append("\r\n\r\n");
+    std::cout << "ADD_HEADER " << add_header << std::endl;
+    //    std::string req_msg_str = parser.input.insert(parser.input.length() - 6, add_header);
+
+    /* size_t end_pos = parser.input.find_first_of("\r\n\r\n");
+    std::cout << "before insert etag, input = "
+              << "POSITION: " << end_pos << "INPUT: " << parser.input << std::endl;
     std::string add_header = "If-None-Match: " + rep.ETag.append("\r\n");
-    parser.input.insert(end_pos + 1, add_header);
-    std::cout << "ADD_HEADER: " << add_header << std::endl;
+    parser.input.insert(end_pos + 2, add_header);
+    std::cout << "ADD_HEADER: " << add_header << "ADD_HEADER_END" << std::endl;
     std::cout << "after insert etag, input=" << parser.input << std::endl;
-    char req_msg_etag[parser.input.size() + 1];
-    send(server_fd, req_msg_etag, parser.input.size() + 1, 0);
+    */
+    //std::cout << "DEBUG Insert after is: " << req_msg_str << std::endl;
+    char req_msg_etag[add_header.size() + 1];
+    send(server_fd, req_msg_etag, add_header.size() + 1, 0);
     char new_resp[65536] = {0};
     int new_len = recv(server_fd, &new_resp, sizeof(new_resp), 0);
     std::string checknew(new_resp, new_len);
+    std::cout << "[Verify] new return response: " << checknew << std::endl;
     if (checknew.find("HTTP/1.1 200 OK") != std::string::npos) {
+      std::cout << "Find 200OK Use cache\n";
       return false;
     }
   }
@@ -317,6 +328,7 @@ void proxy::handleGet(int client_fd,
       no_store = true;
     }
     parse_res.ParseField(server_msg, mes_len);
+    std::cout << "[DEBUG] Check parse_res.Etag is: " << parse_res.ETag << std::endl;
     int content_len = getLength(server_msg, mes_len);  //get content length
     if (content_len != -1) {
       //std::cout << "\n content_len = " << content_len << std::endl;
@@ -371,8 +383,13 @@ void proxy::printcachelog(Response & parse_res,
       logFile << id << ": cached, expires at " << parse_res.exp_str << std::endl;
       pthread_mutex_unlock(&mutex);
     }
-    //    Response storedres(parse_res);
-    Cache.insert(std::pair<std::string, Response>(req_line, parse_res));
+    Response storedres(parse_res);
+    std::cout << "[DEBUG] Printcachelog Check parse_res.Etag is: " << parse_res.ETag
+              << std::endl;
+    std::cout << "[DEBUG] Printcachelog Check storedres.Etag is: " << storedres.ETag
+              << std::endl;
+
+    Cache.insert(std::pair<std::string, Response>(req_line, storedres));
   }
 }
 

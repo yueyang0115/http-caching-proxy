@@ -1,8 +1,0 @@
-#include <cstdio>
-#include <cstdlib>
-
-class timemap {
- public:
-  std::map<std::string, int> expire_time;
-  std::vector<std::string, int>
-};

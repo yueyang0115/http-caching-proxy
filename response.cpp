@@ -52,7 +52,7 @@ void Response::ParseField(char * first_msg, int len) {
   if ((etag_pos = msg.find("ETag: ")) != std::string::npos) {
     size_t etag_end = msg.find("\r\n", etag_pos + 6);
     ETag = msg.substr(etag_pos + 6, etag_end - etag_pos - 6);
-    std::cout << "ETag=" << ETag << "end" << std::endl;
+    std::cout << "ParseField ETag =" << ETag << "end" << std::endl;
   }
   size_t lastmodified_pos;
   if ((lastmodified_pos = msg.find("Last-Modified: ")) != std::string::npos) {
