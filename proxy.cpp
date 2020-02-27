@@ -15,7 +15,7 @@ std::ofstream logFile("proxy.log");
 
 std::map<std::string, Response> Cache;
 void proxy::run() {
-  Client_Info * client_info = new Client_Info();
+  //Client_Info * client_info = new Client_Info();
   int temp_fd = build_server(this->port_num);
   if (temp_fd == -1) {
     return;
@@ -30,10 +30,13 @@ void proxy::run() {
       continue;
     }
     pthread_t thread;
+    pthread_mutex_lock(&mutex);
+    Client_Info * client_info = new Client_Info();
     client_info->setFd(client_fd);
     client_info->setIP(ip);
     client_info->setID(id);
     id++;
+    pthread_mutex_unlock(&mutex);
     pthread_create(&thread, NULL, handle, client_info);
   }
 }
@@ -48,10 +51,14 @@ void * proxy::handle(void * info) {
     return NULL;
   }
   std::string input = std::string(req_msg, 65536);
-  if (input == "") {
+  if (input == "" || input == "\r" || input == "\n" || input == "\r\n") {
     return NULL;
   }
   Request * parser = new Request(input);
+  if (parser->method != "POST" && parser->method != "GET" &&
+      parser->method != "CONNECT") {
+    return NULL;
+  }
   pthread_mutex_lock(&mutex);
   logFile << client_info->getID() << ": \"" << parser->line << "\" from "
           << client_info->getIP() << " @ " << getTime().append("\0");
