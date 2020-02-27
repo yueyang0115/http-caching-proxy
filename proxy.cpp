@@ -103,10 +103,10 @@ void * proxy::handle(void * info) {
       handleGet(client_fd, server_fd, client_info->getID(), host, parser->line);
     }
     else {
-      valid = CheckTime(parser->line, it->second, client_info->getID());
+      valid =
+          CheckTime(server_fd, *parser, parser->line, it->second, client_info->getID());
 
       if (!valid) {  //ask for server,check res and put in cache if needed
-
         pthread_mutex_lock(&mutex);
         logFile << client_info->getID() << ": "
                 << "Requesting \"" << parser->line << "\" from " << host << std::endl;
@@ -118,9 +118,7 @@ void * proxy::handle(void * info) {
       else {  //send from cache
         char cache_res[it->second.getSize()];
         strcpy(cache_res, it->second.getResponse());
-
         send(client_fd, cache_res, it->second.getSize(), 0);
-
         pthread_mutex_lock(&mutex);
         logFile << client_info->getID() << ": Responding \"" << it->second.line << "\""
                 << std::endl;
@@ -156,13 +154,14 @@ void proxy::printcache() {
   std::cout << "cache.size=" << Cache.size() << std::endl;
   std::cout << "****************Cache end*************-" << std::endl;
 }
-bool proxy::CheckTime(std::string req_line, Response & rep, int id) {
+bool proxy::CheckTime(int server_fd,
+                      Request & parser,
+                      std::string req_line,
+                      Response & rep,
+                      int id) {
   if (rep.max_age != -1) {
     time_t curr_time = time(0);
     time_t rep_time = mktime(rep.response_time.getTimeStruct()) - 18000;
-    /* char str[80];
-    strcpy(str, asctime(rep.response_time.getTimeStruct()));
-    printf("asctime is %s\n", str);*/
     int max_age = rep.max_age;
     std::cout << "max_age==" << max_age << std::endl;
     std::cout << "curr_time==" << curr_time << std::endl;
@@ -202,6 +201,23 @@ bool proxy::CheckTime(std::string req_line, Response & rep, int id) {
       logFile << id << ": in cache, but expired at " << t << std::endl;
       pthread_mutex_unlock(&mutex);
 
+      return false;
+    }
+  }
+  //if (it->second.nocache_flag) {
+  if (rep.ETag != "") {
+    size_t end_pos = parser.input.find_first_of("\r\n\r\n");
+    std::cout << "before insert etag, input=" << parser.input << std::endl;
+    std::string add_header = "If-None-Match: " + rep.ETag.append("\r\n");
+    parser.input.insert(end_pos + 1, add_header);
+    std::cout << "ADD_HEADER: " << add_header << std::endl;
+    std::cout << "after insert etag, input=" << parser.input << std::endl;
+    char req_msg_etag[parser.input.size() + 1];
+    send(server_fd, req_msg_etag, parser.input.size() + 1, 0);
+    char new_resp[65536] = {0};
+    int new_len = recv(server_fd, &new_resp, sizeof(new_resp), 0);
+    std::string checknew(new_resp, new_len);
+    if (checknew.find("HTTP/1.1 200 OK") != std::string::npos) {
       return false;
     }
   }

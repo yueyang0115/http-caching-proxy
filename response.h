@@ -20,10 +20,20 @@ class Response {
   parsetime expire_time;
   std::string exp_str;
   parsetime response_time;
+  bool nocache_flag;
+  std::string ETag;
+  std::string LastModified;
 
  public:
   // Response(std::string msg) : response(msg) {}
-  Response() : Etag(""), Last_modified(""), max_age(-1), exp_str("") {}
+  Response() :
+      Etag(""),
+      Last_modified(""),
+      max_age(-1),
+      exp_str(""),
+      nocache_flag(false),
+      ETag(""),
+      LastModified("") {}
   std::string getLine() { return line; }
   void ParseLine(char * first_part, int len);
   void AppendResponse(char *, int len);

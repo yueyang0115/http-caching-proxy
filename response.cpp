@@ -44,4 +44,21 @@ void Response::ParseField(char * first_msg, int len) {
     std::cout << "Expires time = " << exp_str << std::endl;
     expire_time.init(exp_str);
   }
+  size_t nocatch_pos;
+  if ((nocatch_pos = msg.find("no-cache")) != std::string::npos) {
+    nocache_flag = true;
+  }
+  size_t etag_pos;
+  if ((etag_pos = msg.find("ETag: ")) != std::string::npos) {
+    size_t etag_end = msg.find("\r\n", etag_pos + 6);
+    ETag = msg.substr(etag_pos + 6, etag_end - etag_pos - 6);
+    std::cout << "ETag=" << ETag << "end" << std::endl;
+  }
+  size_t lastmodified_pos;
+  if ((lastmodified_pos = msg.find("Last-Modified: ")) != std::string::npos) {
+    size_t lastmodified_end = msg.find("\r\n", lastmodified_pos + 15);
+    LastModified =
+        msg.substr(lastmodified_pos + 15, lastmodified_end - lastmodified_pos - 15);
+    std::cout << "Last-Modified=" << LastModified << "end" << std::endl;
+  }
 }
