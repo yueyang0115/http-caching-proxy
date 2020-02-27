@@ -31,6 +31,10 @@ class proxy {
   static int getLength(char * server_msg, int mes_len);
   static bool findChunk(char * server_msg, int mes_len);
   static std::string getTime();
-  static bool CheckTime(std::string req_line, Response & rep);
+  static bool CheckTime(std::string req_line, Response & rep, int id);
   static void printcache();
+  static void printcachelog(Response & parse_res,
+                            bool no_store,
+                            std::string req_line,
+                            int id);
 };

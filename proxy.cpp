@@ -54,7 +54,7 @@ void * proxy::handle(void * info) {
   Request * parser = new Request(input);
   pthread_mutex_lock(&mutex);
   logFile << client_info->getID() << ": \"" << parser->line << "\" from "
-          << client_info->getIP() << " @ " << getTime() << std::endl;
+          << client_info->getIP() << " @ " << getTime().append("\0");
   pthread_mutex_unlock(&mutex);
 
   std::cout << "received client request is:" << req_msg << "end" << std ::endl;
@@ -67,32 +67,66 @@ void * proxy::handle(void * info) {
     return NULL;
   }
 
-  pthread_mutex_lock(&mutex);
-  logFile << client_info->getID() << ": "
-          << "Requesting \"" << parser->line << "\" from " << host << std::endl;
-  pthread_mutex_unlock(&mutex);
-
   if (parser->method == "CONNECT") {
+    pthread_mutex_lock(&mutex);
+    logFile << client_info->getID() << ": "
+            << "Requesting \"" << parser->line << "\" from " << host << std::endl;
+    pthread_mutex_unlock(&mutex);
+
     handleConnect(client_fd, server_fd, client_info->getID());
+    pthread_mutex_lock(&mutex);
+    logFile << client_info->getID() << "Tunnel closed" << std::endl;
+    pthread_mutex_unlock(&mutex);
   }
   else if (parser->method == "GET") {
     bool valid = false;
-    std::map<std::string, Response>::iterator it;
-    if ((it = Cache.find(parser->line)) != Cache.end()) {
-      valid = CheckTime(parser->line, it->second);  //
-    }
-    if (!valid) {  //ask for server,check res and put in cache if needed
+    std::map<std::string, Response>::iterator it = Cache.begin();
+    it = Cache.find(parser->line);
+    if (it == Cache.end()) {
+      pthread_mutex_lock(&mutex);
+      logFile << client_info->getID() << ": not in cache" << std::endl;
+      pthread_mutex_unlock(&mutex);
+
+      pthread_mutex_lock(&mutex);
+      logFile << client_info->getID() << ": "
+              << "Requesting \"" << parser->line << "\" from " << host << std::endl;
+      pthread_mutex_unlock(&mutex);
+
       send(server_fd, req_msg, len, 0);
       handleGet(client_fd, server_fd, client_info->getID(), host, parser->line);
     }
-    else {  //send from cache
-      char cache_res[it->second.getSize()];
-      strcpy(cache_res, it->second.getResponse());
-      send(client_fd, cache_res, it->second.getSize(), 0);
+    else {
+      valid = CheckTime(parser->line, it->second, client_info->getID());
+
+      if (!valid) {  //ask for server,check res and put in cache if needed
+
+        pthread_mutex_lock(&mutex);
+        logFile << client_info->getID() << ": "
+                << "Requesting \"" << parser->line << "\" from " << host << std::endl;
+        pthread_mutex_unlock(&mutex);
+
+        send(server_fd, req_msg, len, 0);
+        handleGet(client_fd, server_fd, client_info->getID(), host, parser->line);
+      }
+      else {  //send from cache
+        char cache_res[it->second.getSize()];
+        strcpy(cache_res, it->second.getResponse());
+
+        send(client_fd, cache_res, it->second.getSize(), 0);
+
+        pthread_mutex_lock(&mutex);
+        logFile << client_info->getID() << ": Responding \"" << it->second.line << "\""
+                << std::endl;
+        pthread_mutex_unlock(&mutex);
+      }
     }
     printcache();
   }
   else if (parser->method == "POST") {
+    pthread_mutex_lock(&mutex);
+    logFile << client_info->getID() << ": "
+            << "Requesting \"" << parser->line << "\" from " << host << std::endl;
+    pthread_mutex_unlock(&mutex);
     handlePOST(client_fd, server_fd, req_msg, len, client_info->getID(), host);
   }
   close(server_fd);
@@ -115,7 +149,7 @@ void proxy::printcache() {
   std::cout << "cache.size=" << Cache.size() << std::endl;
   std::cout << "****************Cache end*************-" << std::endl;
 }
-bool proxy::CheckTime(std::string req_line, Response & rep) {
+bool proxy::CheckTime(std::string req_line, Response & rep, int id) {
   if (rep.max_age != -1) {
     time_t curr_time = time(0);
     time_t rep_time = mktime(rep.response_time.getTimeStruct()) - 18000;
@@ -132,9 +166,16 @@ bool proxy::CheckTime(std::string req_line, Response & rep) {
       std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
       std::cout << "max_age erase cache, cache_size now is===========" << Cache.size()
                 << std::endl;
-      return false;
+      time_t dead_time = mktime(rep.response_time.getTimeStruct()) + rep.max_age - 18000;
+      struct tm * asc_time = gmtime(&dead_time);
+      const char * t = asctime(asc_time);
+      pthread_mutex_lock(&mutex);
+      logFile << id << ": in cache, but expired at " << t << std::endl;
+      pthread_mutex_unlock(&mutex);
     }
+    return false;
   }
+
   if (rep.exp_str != "") {
     time_t curr_time = time(0);
     time_t expire_time = mktime(rep.expire_time.getTimeStruct()) - 18000;
@@ -146,9 +187,20 @@ bool proxy::CheckTime(std::string req_line, Response & rep) {
       std::cout << "expiretime erase cache, cache_size now is===========" << Cache.size()
                 << std::endl;
 
+      time_t dead_time = mktime(rep.expire_time.getTimeStruct()) - 18000;
+      struct tm * asc_time = gmtime(&dead_time);
+      const char * t = asctime(asc_time);
+      pthread_mutex_lock(&mutex);
+      std::cout << "expired time in logfile = " << dead_time << std::endl;
+      logFile << id << ": in cache, but expired at " << t << std::endl;
+      pthread_mutex_unlock(&mutex);
+
       return false;
     }
   }
+  pthread_mutex_lock(&mutex);
+  logFile << id << ": in cache, valid" << std::endl;
+  pthread_mutex_unlock(&mutex);
   return true;
   //Wed Feb 26 04:09:10 2020
 }
@@ -183,9 +235,12 @@ void proxy::handlePOST(int client_fd,
       pthread_mutex_unlock(&mutex);
 
       std::cout << "receive response from server which is:" << response << std::endl;
-      // std::cout << "begin sending to client" << std::endl;
+
       send(client_fd, response, response_len, MSG_NOSIGNAL);
-      //std::cout << "finish sending to clinet" << std::endl;
+
+      pthread_mutex_lock(&mutex);
+      logFile << id << ": Responding \"" << res.getLine() << std::endl;
+      pthread_mutex_unlock(&mutex);
     }
     else {
       std::cout << "server socket closed!\n";
@@ -209,10 +264,10 @@ void proxy::handleGet(int client_fd,
   if (mes_len == 0) {
     return;
   }
-  Response response;
-  response.ParseLine(server_msg, mes_len);
+  Response parse_res;
+  parse_res.ParseLine(server_msg, mes_len);
   pthread_mutex_lock(&mutex);
-  logFile << id << ": Received \"" << response.getLine() << "\" from " << host
+  logFile << id << ": Received \"" << parse_res.getLine() << "\" from " << host
           << std::endl;
   pthread_mutex_unlock(&mutex);
 
@@ -227,6 +282,7 @@ void proxy::handleGet(int client_fd,
       }
       send(client_fd, chunked_msg, len, 0);
     }
+    ///////////////////
   }
   else {
     //int content_len = getLength(server_msg, mes_len);  //get content length
@@ -237,7 +293,6 @@ void proxy::handleGet(int client_fd,
     if ((nostore_pos = server_msg_str.find("no-store")) != std::string::npos) {
       no_store = true;
     }
-    Response parse_res;
     parse_res.ParseField(server_msg, mes_len);
     int content_len = getLength(server_msg, mes_len);  //get content length
     if (content_len != -1) {
@@ -258,10 +313,43 @@ void proxy::handleGet(int client_fd,
       parse_res.setEntireRes(server_msg_str);
       send(client_fd, server_msg, mes_len, 0);
     }
-    if ((!no_store) &&
-        (parse_res.response.find("HTTP/1.1 200 OK") != std::string::npos)) {
-      Cache.insert(std::pair<std::string, Response>(req_line, parse_res));
+    std::string logrespond(server_msg, mes_len);
+    size_t log_pos = logrespond.find_first_of("\r\n");
+    std::string log_line = logrespond.substr(0, log_pos);
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": Responding \"" << log_line << "\"" << std::endl;
+    pthread_mutex_unlock(&mutex);
+    printcachelog(parse_res, no_store, req_line, id);
+  }
+}
+
+void proxy::printcachelog(Response & parse_res,
+                          bool no_store,
+                          std::string req_line,
+                          int id) {
+  if (parse_res.response.find("HTTP/1.1 200 OK") != std::string::npos) {
+    if (no_store) {
+      pthread_mutex_lock(&mutex);
+      logFile << id << ": not cacheable becaues NO STORE" << std::endl;
+      pthread_mutex_unlock(&mutex);
+      return;
     }
+    if (parse_res.max_age != -1) {
+      time_t dead_time =
+          mktime(parse_res.response_time.getTimeStruct()) + parse_res.max_age - 18000;
+      struct tm * asc_time = gmtime(&dead_time);
+      const char * t = asctime(asc_time);
+      pthread_mutex_lock(&mutex);
+      logFile << id << ": cached, expires at " << t << std::endl;
+      pthread_mutex_unlock(&mutex);
+    }
+    else if (parse_res.exp_str != "") {
+      pthread_mutex_lock(&mutex);
+      logFile << id << ": cached, expires at " << parse_res.exp_str << std::endl;
+      pthread_mutex_unlock(&mutex);
+    }
+    //    Response storedres(parse_res);
+    Cache.insert(std::pair<std::string, Response>(req_line, parse_res));
   }
 }
 
@@ -318,7 +406,9 @@ int proxy::getLength(char * server_msg, int mes_len) {
 
 void proxy::handleConnect(int client_fd, int server_fd, int id) {
   send(client_fd, "HTTP/1.1 200 OK\r\n\r\n", 19, 0);
-
+  pthread_mutex_lock(&mutex);
+  logFile << id << ": Responding \"HTTP/1.1 200 OK\"" << std::endl;
+  pthread_mutex_unlock(&mutex);
   fd_set readfds;
   int nfds = server_fd > client_fd ? server_fd + 1 : client_fd + 1;
   while (1) {
@@ -328,11 +418,14 @@ void proxy::handleConnect(int client_fd, int server_fd, int id) {
     select(nfds, &readfds, NULL, NULL, NULL);
     int fd[2] = {server_fd, client_fd};
     int len;
-    //char message[65536] = {0};
+    char actual_message[65536] = {0};
+    int actual_i;
     for (int i = 0; i < 2; i++) {
       char message[65536] = {0};
       if (FD_ISSET(fd[i], &readfds)) {
+        actual_i = i;
         len = recv(fd[i], message, sizeof(message), 0);
+        strcpy(actual_message, message);
         if (len == 0) {
           //          std::cout << "Error: Receive length 0\n";
           return;
@@ -342,11 +435,9 @@ void proxy::handleConnect(int client_fd, int server_fd, int id) {
           // std::cout << "Error in Sending!\n" << fd[i] << std::endl;
         }
       }
+      // send(fd[1 - actual_i], actual_message, len, 0);
     }
   }
-  pthread_mutex_lock(&mutex);
-  logFile << id << "Tunnel closed" << std::endl;
-  pthread_mutex_unlock(&mutex);
 }
 
 std::string proxy::getTime() {

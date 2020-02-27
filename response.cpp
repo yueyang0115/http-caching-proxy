@@ -41,7 +41,7 @@ void Response::ParseField(char * first_msg, int len) {
   if ((expire_pos = msg.find("Expires: ")) != std::string::npos) {
     size_t GMT_pos = msg.find(" GMT");
     exp_str = msg.substr(expire_pos + 9, GMT_pos - expire_pos - 9);
-    //std::cout << "Expires time = " << exp_str << std::endl;
+    std::cout << "Expires time = " << exp_str << std::endl;
     expire_time.init(exp_str);
   }
 }
