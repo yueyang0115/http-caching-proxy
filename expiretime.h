@@ -47,6 +47,7 @@ class parsetime {
     time_struct.tm_min = atoi(exp.substr(20).c_str());
     time_struct.tm_sec = atoi(exp.substr(23).c_str());
     time_struct.tm_wday = mymap.getMap(exp.substr(0, 3).c_str());
+    time_struct.tm_isdst = 0;
   }
   struct tm * getTimeStruct() {
     return &time_struct;

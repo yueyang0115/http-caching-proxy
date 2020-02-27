@@ -13,7 +13,7 @@ void Request::ParseMethod() {
 }
 
 void Request::ParseInput() {
-  std::cout << "getting into parse\n";
+  //std::cout << "getting into parse\n";
   //std::cout<<"input is\n"<<input<<std::endl;
   /* if(input==""){
         std::cout<<"request is """<<std::endl;
@@ -38,20 +38,10 @@ void Request::ParseInput() {
     port = host_line.substr(port_begin + 1);
   }
   else {
-    std::cout << "\n cannnot find port!" << std::endl;
+    //std::cout << "\n cannnot find port!" << std::endl;
     // size_t port_end = after_host.find_first_of("\r\n");
     host = host_line;
     //std::cout<<"host = "<<host<<std::endl;
-    if (host == "") {
-      std::cout << "host is "
-                   ""
-                << std::endl;
-    }
-    if (host.empty() == 1) {
-      std::cout << "host.empty==1" << std::endl;
-    }
-    if (!host.empty()) {
-      port = "80";
-    }
+    port = "80";
   }
 }

@@ -29,19 +29,19 @@ void Response::ParseField(char * first_msg, int len) {
   size_t max_age_pos;
   if ((max_age_pos = msg.find("max-age=")) != std::string::npos) {
     std::string max_age_str = msg.substr(max_age_pos + 8);
-    std::cout << "max_age after = is:" << max_age_str << std::endl;
+    //std::cout << "max_age after = is:" << max_age_str << std::endl;
     //max_age = toInteger(max_age_str);
     max_age = atoi(max_age_str.c_str());
-    std::cout << "first_msg=" << first_msg << std::endl;
-    std::cout << "(DEBUG!!!!!!!!)" << std::endl;
-    std::cout << "max_age=" << max_age << std::endl;
+    //std::cout << "first_msg=" << first_msg << std::endl;
+    //std::cout << "(DEBUG!!!!!!!!)" << std::endl;
+    //std::cout << "max_age=" << max_age << std::endl;
     return;
   }
   size_t expire_pos;
   if ((expire_pos = msg.find("Expires: ")) != std::string::npos) {
     size_t GMT_pos = msg.find(" GMT");
     exp_str = msg.substr(expire_pos + 9, GMT_pos - expire_pos - 9);
-    std::cout << "Expires time = " << exp_str << std::endl;
+    //std::cout << "Expires time = " << exp_str << std::endl;
     expire_time.init(exp_str);
   }
 }
