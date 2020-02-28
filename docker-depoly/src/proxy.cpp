@@ -1,4 +1,3 @@
-
 #include "proxy.h"
 
 #include <pthread.h>
@@ -9,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 #include "client_info.h"
 #include "function.h"
@@ -56,7 +56,7 @@ void * proxy::handle(void * info) {
   int len = recv(client_fd, req_msg, sizeof(req_msg), 0);  // fisrt request from client
   if (len <= 0) {
     pthread_mutex_lock(&mutex);
-    logFile << client_info->getID() << ":  WARNING Invalid Request" << std::endl;
+    logFile << client_info->getID() << ": WARNING Invalid Request" << std::endl;
     pthread_mutex_unlock(&mutex);
     return NULL;
   }
@@ -385,13 +385,24 @@ void proxy::handleGet(int client_fd,
           server_fd, server_msg, mes_len, content_len);  //get the entire message
       std::cout << "QQQQQQQQQQQQQQQQQQQQQQ\n"
                 << "entire msg size : " << msg.length() << std::endl;
-      char send_response[msg.length() + 1];
-      msg = msg.append("\0");
-      strcpy(send_response, msg.c_str());
-      parse_res.setEntireRes(msg);
-      std::cout << "const char size : " << sizeof(send_response) << std::endl;
-      //std::cout << "Send client response is: " << send_response << std::endl;
-      send(client_fd, send_response, msg.length(), 0);
+      if (msg.length() >= 10000000) {
+        std::vector<char> large_msg;
+        for (size_t i = 0; i < msg.length(); i++) {
+          large_msg.push_back(msg[i]);
+        }
+        std::cout << "Vector size: " << large_msg.size() << std::endl;
+        const char * send_msg = large_msg.data();
+        send(client_fd, send_msg, msg.length(), 0);
+      }
+      else {
+        char send_response[msg.length() + 1];
+        msg = msg.append("\0");
+        strcpy(send_response, msg.c_str());
+        parse_res.setEntireRes(msg);
+        std::cout << "const char size : " << sizeof(send_response) << std::endl;
+        //std::cout << "Send client response is: " << send_response << std::endl;
+        send(client_fd, send_response, msg.length(), 0);
+      }
     }
     else {
       std::cout << "no content-length "
