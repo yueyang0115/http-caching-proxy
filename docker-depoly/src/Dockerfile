@@ -1,8 +1,7 @@
 FROM gcc:9
 
-RUN mkdir -p /code
-RUN mkdir -p /var/log/erss
-WORKDIR /code
-add . /code/
+RUN mkdir /var/log/erss
+add . /var/log/erss/
+WORKDIR /var/log/erss
 
 ENTRYPOINT ["./run.sh"]

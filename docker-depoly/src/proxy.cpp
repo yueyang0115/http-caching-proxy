@@ -1,3 +1,4 @@
+
 #include "proxy.h"
 
 #include <pthread.h>
@@ -19,6 +20,9 @@ void proxy::run() {
 
   int temp_fd = build_server(this->port_num);
   if (temp_fd == -1) {
+    pthread_mutex_lock(&mutex);
+    logFile << "(no-id): ERROR in creating socket to accept" << std::endl;
+    pthread_mutex_unlock(&mutex);
     return;
   }
   int client_fd;
@@ -27,7 +31,9 @@ void proxy::run() {
     std::string ip;
     client_fd = server_accept(temp_fd, &ip);
     if (client_fd == -1) {
-      std::cout << "connect client error" << std::endl;
+      pthread_mutex_lock(&mutex);
+      logFile << "(no-id): ERROR in connecting client" << std::endl;
+      pthread_mutex_unlock(&mutex);
       continue;
     }
     pthread_t thread;
@@ -49,6 +55,9 @@ void * proxy::handle(void * info) {
   char req_msg[65536] = {0};
   int len = recv(client_fd, req_msg, sizeof(req_msg), 0);  // fisrt request from client
   if (len <= 0) {
+    pthread_mutex_lock(&mutex);
+    logFile << client_info->getID() << ":  WARNING Invalid Request" << std::endl;
+    pthread_mutex_unlock(&mutex);
     return NULL;
   }
   std::string input = std::string(req_msg, len);
@@ -367,17 +376,22 @@ void proxy::handleGet(int client_fd,
       no_store = true;
     }
     parse_res.ParseField(server_msg, mes_len);
+    printnote(parse_res, id);
     std::cout << "[DEBUG] Check parse_res.Etag is: " << parse_res.ETag << std::endl;
     int content_len = getLength(server_msg, mes_len);  //get content length
     if (content_len != -1) {
       //std::cout << "\n content_len = " << content_len << std::endl;
       std::string msg = sendContentLen(
           server_fd, server_msg, mes_len, content_len);  //get the entire message
-      char send_response[msg.length()];
+      std::cout << "QQQQQQQQQQQQQQQQQQQQQQ\n"
+                << "entire msg size : " << msg.length() << std::endl;
+      char send_response[msg.length() + 1];
+      msg = msg.append("\0");
       strcpy(send_response, msg.c_str());
       parse_res.setEntireRes(msg);
+      std::cout << "const char size : " << sizeof(send_response) << std::endl;
       //std::cout << "Send client response is: " << send_response << std::endl;
-      send(client_fd, send_response, sizeof(send_response), 0);
+      send(client_fd, send_response, msg.length(), 0);
     }
     else {
       std::cout << "no content-length "
@@ -397,6 +411,35 @@ void proxy::handleGet(int client_fd,
   }
 }
 
+void proxy::printnote(Response & parse_res, int id) {
+  std::cout << "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+            << std::endl;
+  if (parse_res.max_age != -1) {
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": NOTE Cache-Control: max-age=" << parse_res.max_age << std::endl;
+    pthread_mutex_unlock(&mutex);
+  }
+  if (parse_res.exp_str != "") {
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": NOTE Expires: " << parse_res.exp_str << std::endl;
+    pthread_mutex_unlock(&mutex);
+  }
+  if (parse_res.nocache_flag == true) {
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": NOTE Cache-Control: no-cache" << std::endl;
+    pthread_mutex_unlock(&mutex);
+  }
+  if (parse_res.ETag != "") {
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": NOTE ETag: " << parse_res.ETag << std::endl;
+    pthread_mutex_unlock(&mutex);
+  }
+  if (parse_res.LastModified != "") {
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": NOTE Last-Modified: " << parse_res.LastModified << std::endl;
+    pthread_mutex_unlock(&mutex);
+  }
+}
 void proxy::printcachelog(Response & parse_res,
                           bool no_store,
                           std::string req_line,
@@ -438,9 +481,12 @@ std::string proxy::sendContentLen(int send_fd,
   int total_len = 0;
   int len = 0;
   std::string msg(server_msg, mes_len);
-  char new_server_msg[65536] = {0};
+
   while (total_len < content_len) {
-    len = recv(send_fd, new_server_msg, sizeof(new_server_msg), 0);
+    char new_server_msg[65536] = {0};
+    if ((len = recv(send_fd, new_server_msg, sizeof(new_server_msg), 0)) <= 0) {
+      break;
+    }
     //std::cout << "\n in while loop, received length = " << len << std::endl;
     std::string temp(new_server_msg, len);
     msg += temp;

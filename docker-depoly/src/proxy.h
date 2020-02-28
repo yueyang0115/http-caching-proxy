@@ -41,6 +41,7 @@ class proxy {
                             bool no_store,
                             std::string req_line,
                             int id);
+  static void printnote(Response & parse_res, int id);
   static void ask_server(int id,
                          std::string line,
                          char * req_msg,
