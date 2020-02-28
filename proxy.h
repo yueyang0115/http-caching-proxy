@@ -41,4 +41,13 @@ class proxy {
                             bool no_store,
                             std::string req_line,
                             int id);
+  static void ask_server(int id,
+                         std::string line,
+                         char * req_msg,
+                         int len,
+                         int client_fd,
+                         int server_fd,
+                         const char * host);
+  static void use_cache(Response & res, int id, int client_fd);
+  static bool revalidation(Response & rep, std::string input, int server_fd, int id);
 };

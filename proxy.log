@@ -1,118 +1,40 @@
-0: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:23 2020
-0: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+0: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:46 2020
+0: not in cache
+0: Requesting "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from www.mocky.io
+0: Received "HTTP/1.1 200 OK" from www.mocky.io
 0: Responding "HTTP/1.1 200 OK"
-1: "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:23 2020
-1: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
-1: Responding "HTTP/1.1 200 OK"
-2: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:27 2020
-2: not in cache
-2: Requesting "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from people.duke.edu
-2: Received "HTTP/1.1 200 OK" from people.duke.edu
-2: Responding "/html>"
-3: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:27 2020
-4: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:27 2020
-4: not in cache
-4: Requesting "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from people.duke.edu
-4: Received "HTTP/1.1 200 OK" from people.duke.edu
-4: Responding "HTTP/1.1 200 OK"
-5: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:27 2020
-5: not in cache
-5: Requesting "GET http://people.duke.edu/favicon.ico HTTP/1.1" from people.duke.edu
-5: Received "HTTP/1.1 404 Not Found" from people.duke.edu
-5: Responding "HTTP/1.1 404 Not Found"
-3: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+1: "GET http://www.mocky.io/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:46 2020
+1: not in cache
+1: Requesting "GET http://www.mocky.io/favicon.ico HTTP/1.1" from www.mocky.io
+1: Received "HTTP/1.1 404 Not Found" from www.mocky.io
+1: Responding "HTTP/1.1 404 Not Found"
+2: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:50 2020
+2: in cache, valid
+2: Responding "HTTP/1.1 200 OK"
+3: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:51 2020
+3: in cache, valid
 3: Responding "HTTP/1.1 200 OK"
-6: "CONNECT aus5.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:47 2020
-6: Requesting "CONNECT aus5.mozilla.org:443 HTTP/1.1" from aus5.mozilla.org
+4: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:51 2020
+4: in cache, valid
+4: Responding "HTTP/1.1 200 OK"
+5: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:51 2020
+5: in cache, valid
+5: Responding "HTTP/1.1 200 OK"
+6: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:51 2020
+6: in cache, valid
 6: Responding "HTTP/1.1 200 OK"
-7: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:58 2020
+7: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:52 2020
 7: in cache, valid
 7: Responding "HTTP/1.1 200 OK"
-8: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:58 2020
+8: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:52 2020
 8: in cache, valid
 8: Responding "HTTP/1.1 200 OK"
-9: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:42:58 2020
-9: not in cache
-9: Requesting "GET http://people.duke.edu/favicon.ico HTTP/1.1" from people.duke.edu
-9: Received "HTTP/1.1 404 Not Found" from people.duke.edu
-9: Responding "HTTP/1.1 404 Not Found"
-10: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:43:26 2020
+9: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:52 2020
+9: in cache, valid
+9: Responding "HTTP/1.1 200 OK"
+10: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:52 2020
 10: in cache, valid
 10: Responding "HTTP/1.1 200 OK"
-11: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:43:27 2020
+11: "GET http://www.mocky.io/v2/5e58ab152f0000be0c962075 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:54:52 2020
 11: in cache, valid
 11: Responding "HTTP/1.1 200 OK"
-12: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:43:27 2020
-12: not in cache
-12: Requesting "GET http://people.duke.edu/favicon.ico HTTP/1.1" from people.duke.edu
-12: Received "HTTP/1.1 404 Not Found" from people.duke.edu
-12: Responding "HTTP/1.1 404 Not Found"
-13: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:08 2020
-13: in cache, valid
-13: Responding "HTTP/1.1 200 OK"
-14: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:08 2020
-14: in cache, valid
-14: Responding "HTTP/1.1 200 OK"
-15: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:08 2020
-15: not in cache
-15: Requesting "GET http://people.duke.edu/favicon.ico HTTP/1.1" from people.duke.edu
-15: Received "HTTP/1.1 404 Not Found" from people.duke.edu
-15: Responding "HTTP/1.1 404 Not Found"
-6Tunnel closed
-3Tunnel closed
-1Tunnel closed
-0Tunnel closed
-16: "GET http://detectportal.firefox.com/success.txt HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-16: not in cache
-16: Requesting "GET http://detectportal.firefox.com/success.txt HTTP/1.1" from detectportal.firefox.com
-16: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
-16: Responding "HTTP/1.1 200 OK"
-16: not cacheable becaues NO STORE
-17: "GET http://detectportal.firefox.com/success.txt?ipv4 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-18: "CONNECT content-signature-2.cdn.mozilla.net:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-17: not in cache
-17: Requesting "GET http://detectportal.firefox.com/success.txt?ipv4 HTTP/1.1" from detectportal.firefox.com
-17: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
-17: Responding "HTTP/1.1 200 OK"
-17: not cacheable becaues NO STORE
-18: Requesting "CONNECT content-signature-2.cdn.mozilla.net:443 HTTP/1.1" from content-signature-2.cdn.mozilla.net
-18: Responding "HTTP/1.1 200 OK"
-19: "CONNECT search.services.mozilla.com:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-20: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-19: Requesting "CONNECT search.services.mozilla.com:443 HTTP/1.1" from search.services.mozilla.com
-19: Responding "HTTP/1.1 200 OK"
-21: "CONNECT firefox.settings.services.mozilla.com:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-21: Requesting "CONNECT firefox.settings.services.mozilla.com:443 HTTP/1.1" from firefox.settings.services.mozilla.com
-21: Responding "HTTP/1.1 200 OK"
-20: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-20: Responding "HTTP/1.1 200 OK"
-22: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-22: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-22: Responding "HTTP/1.1 200 OK"
-25: "POST http://ocsp.digicert.com/ HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-26: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-25: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-27: "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-27: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
-27: Responding "HTTP/1.1 200 OK"
-25: Received "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-25: Responding "POST http://ocsp.digicert.com/ HTTP/1.1
-28: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-29: "CONNECT snippets.cdn.mozilla.net:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-30: "POST http://ocsp.digicert.com/ HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-26: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-26: Responding "HTTP/1.1 200 OK"
-30: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-31: "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-29: Requesting "CONNECT snippets.cdn.mozilla.net:443 HTTP/1.1" from snippets.cdn.mozilla.net
-29: Responding "HTTP/1.1 200 OK"
-28: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-28: Responding "HTTP/1.1 200 OK"
-31: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-31: Responding "HTTP/1.1 200 OK"
-30: Received "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-30: Responding "POST http://ocsp.digicert.com/ HTTP/1.1
-33: "POST http://ocsp.digicert.com/ HTTP/1.1" from 10.197.15.77 @ Thu Feb 27 23:44:23 2020
-33: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-33: Received "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-33: Responding "POST http://ocsp.digicert.com/ HTTP/1.1
