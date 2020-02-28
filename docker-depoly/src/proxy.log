@@ -1,75 +1,24 @@
-0: "CONNECT www.artsci.utoronto.ca:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:43 2020
-0: Requesting "CONNECT www.artsci.utoronto.ca:443 HTTP/1.1" from www.artsci.utoronto.ca
+0: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 23:50:10 2020
+0: not in cache
+0: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
+0: Received "HTTP/1.1 200 OK" from www.mocky.io
+0: NOTE Cache-Control: max-age=10
+0: cached, expires at Fri Feb 28 23:50:20 2020
+
 0: Responding "HTTP/1.1 200 OK"
-1: "CONNECT www.artsci.utoronto.ca:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-3: "CONNECT fonts.googleapis.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-3: Requesting "CONNECT fonts.googleapis.com:443 HTTP/1.1" from fonts.googleapis.com
+1: "GET http://www.mocky.io/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 23:50:10 2020
+1: not in cache
+1: Requesting "GET http://www.mocky.io/favicon.ico HTTP/1.1" from www.mocky.io
+1: Received "HTTP/1.1 404 Not Found" from www.mocky.io
+1: Responding "HTTP/1.1 404 Not Found"
+2: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 23:50:12 2020
+2: in cache, valid
+2: Responding "HTTP/1.1 200 OK"
+3: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 23:50:25 2020
+3: in cache, but expired at Fri Feb 28 23:50:20 2020
+3: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
+3: Received "HTTP/1.1 200 OK" from www.mocky.io
+3: NOTE Cache-Control: max-age=10
+3: cached, expires at Fri Feb 28 23:50:35 2020
+
 3: Responding "HTTP/1.1 200 OK"
-3: Tunnel closed
-1: Requesting "CONNECT www.artsci.utoronto.ca:443 HTTP/1.1" from www.artsci.utoronto.ca
-1: Responding "HTTP/1.1 200 OK"
-1: Tunnel closed
-8: "CONNECT www.youtube.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-8: Requesting "CONNECT www.youtube.com:443 HTTP/1.1" from www.youtube.com
-8: Responding "HTTP/1.1 200 OK"
-9: "CONNECT www.google-analytics.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-9: Requesting "CONNECT www.google-analytics.com:443 HTTP/1.1" from www.google-analytics.com
-9: Responding "HTTP/1.1 200 OK"
-10: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-10: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-11: "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:45 2020
-11: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
-11: Responding "HTTP/1.1 200 OK"
-12: "CONNECT static.doubleclick.net:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:46 2020
-12: Requesting "CONNECT static.doubleclick.net:443 HTTP/1.1" from static.doubleclick.net
-12: Responding "HTTP/1.1 200 OK"
-13: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:46 2020
-13: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-14: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:46 2020
-14: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-15: "CONNECT r1---sn-hjoj-gq0e.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:48 2020
-16: "CONNECT r1---sn-hjoj-gq0e.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:48 2020
-17: "CONNECT fonts.gstatic.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:48 2020
-18: "CONNECT i9.ytimg.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:48 2020
-18: Requesting "CONNECT i9.ytimg.com:443 HTTP/1.1" from i9.ytimg.com
-18: Responding "HTTP/1.1 200 OK"
-17: Requesting "CONNECT fonts.gstatic.com:443 HTTP/1.1" from fonts.gstatic.com
-17: Responding "HTTP/1.1 200 OK"
-19: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:49 2020
-19: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-5: WARNING Invalid Request
-6: WARNING Invalid Request
-4: WARNING Invalid Request
-2: WARNING Invalid Request
-0: Tunnel closed
-7: WARNING Invalid Request
-20: "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:52 2020
-20: Requesting "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from r1---sn-5uaeznks.googlevideo.com
-20: Responding "HTTP/1.1 200 OK"
-21: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:52 2020
-21: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-22: "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:53 2020
-23: "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:53 2020
-22: Requesting "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from r1---sn-5uaeznks.googlevideo.com
-22: Responding "HTTP/1.1 200 OK"
-23: Requesting "CONNECT r1---sn-5uaeznks.googlevideo.com:443 HTTP/1.1" from r1---sn-5uaeznks.googlevideo.com
-23: Responding "HTTP/1.1 200 OK"
-24: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:54 2020
-25: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:54 2020
-25: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-24: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-26: "CONNECT r1---sn-q4fl6nsl.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:54 2020
-26: Requesting "CONNECT r1---sn-q4fl6nsl.googlevideo.com:443 HTTP/1.1" from r1---sn-q4fl6nsl.googlevideo.com
-26: Responding "HTTP/1.1 200 OK"
-27: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:54 2020
-27: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-28: "CONNECT r1---sn-q4fl6nsl.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:56 2020
-28: Requesting "CONNECT r1---sn-q4fl6nsl.googlevideo.com:443 HTTP/1.1" from r1---sn-q4fl6nsl.googlevideo.com
-28: Responding "HTTP/1.1 200 OK"
-29: "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:25:56 2020
-29: Requesting "POST http://ocsp.pki.goog/gts1o1 HTTP/1.1" from ocsp.pki.goog
-30: WARNING Invalid Request
-31: "CONNECT r1---sn-hjoj-gq0e.googlevideo.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:26:04 2020
-32: "CONNECT i.ytimg.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:26:20 2020
-32: Requesting "CONNECT i.ytimg.com:443 HTTP/1.1" from i.ytimg.com
-32: Responding "HTTP/1.1 200 OK"

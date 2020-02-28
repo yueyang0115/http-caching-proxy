@@ -51,4 +51,5 @@ class proxy {
                          const char * host);
   static void use_cache(Response & res, int id, int client_fd);
   static bool revalidation(Response & rep, std::string input, int server_fd, int id);
+  static void Check502(std::string entire_msg, int client_fd, int id);
 };

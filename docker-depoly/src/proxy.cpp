@@ -16,8 +16,6 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 std::ofstream logFile("/var/log/erss/proxy.log");
 std::unordered_map<std::string, Response> Cache;
 void proxy::run() {
-  // Client_Info * client_info = new Client_Info();
-
   int temp_fd = build_server(this->port_num);
   if (temp_fd == -1) {
     pthread_mutex_lock(&mutex);
@@ -67,29 +65,29 @@ void * proxy::handle(void * info) {
   Request * parser = new Request(input);
   if (parser->method != "POST" && parser->method != "GET" &&
       parser->method != "CONNECT") {
+    const char * req400 = "HTTP/1.1 400 Bad Request";
+    pthread_mutex_lock(&mutex);
+    logFile << client_info->getID() << ": Responding \"" << req400 << "\"" << std::endl;
+    pthread_mutex_unlock(&mutex);
     return NULL;
   }
   pthread_mutex_lock(&mutex);
   logFile << client_info->getID() << ": \"" << parser->line << "\" from "
           << client_info->getIP() << " @ " << getTime().append("\0");
   pthread_mutex_unlock(&mutex);
-
   std::cout << "received client request is:" << req_msg << "end" << std ::endl;
   const char * host = parser->host.c_str();
   const char * port = parser->port.c_str();
-
   int server_fd = build_client(host, port);  //connect to server
   if (server_fd == -1) {
     std::cout << "Error in build client!\n";
     return NULL;
   }
-
   if (parser->method == "CONNECT") {
     pthread_mutex_lock(&mutex);
     logFile << client_info->getID() << ": "
             << "Requesting \"" << parser->line << "\" from " << host << std::endl;
     pthread_mutex_unlock(&mutex);
-
     handleConnect(client_fd, server_fd, client_info->getID());
     pthread_mutex_lock(&mutex);
     logFile << client_info->getID() << ": Tunnel closed" << std::endl;
@@ -104,12 +102,10 @@ void * proxy::handle(void * info) {
       pthread_mutex_lock(&mutex);
       logFile << client_info->getID() << ": not in cache" << std::endl;
       pthread_mutex_unlock(&mutex);
-
       pthread_mutex_lock(&mutex);
       logFile << client_info->getID() << ": "
               << "Requesting \"" << parser->line << "\" from " << host << std::endl;
       pthread_mutex_unlock(&mutex);
-
       send(server_fd, req_msg, len, 0);
       handleGet(client_fd, server_fd, client_info->getID(), host, parser->line);
     }
@@ -191,19 +187,12 @@ bool proxy::CheckTime(int server_fd,
                       std::string req_line,
                       Response & rep,
                       int id) {
-  //  std::cout << "[DEBUG] Response max-age: " << rep.max_age << std::endl;
-  // std::cout << "[DEBUG] Response Expires: " << rep.exp_str << std::endl;
-  // std::cout << "[DEBUG] Response Etag: " << rep.ETag << std::endl;
-
   if (rep.max_age != -1) {
     time_t curr_time = time(0);
     time_t rep_time = mktime(rep.response_time.getTimeStruct());
     int max_age = rep.max_age;
     if (rep_time + max_age <= curr_time) {
       Cache.erase(req_line);
-      std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-      std::cout << "max_age erase cache, cache_size now is===========" << Cache.size()
-                << std::endl;
       time_t dead_time = mktime(rep.response_time.getTimeStruct()) + rep.max_age;
       struct tm * asc_time = gmtime(&dead_time);
       const char * t = asctime(asc_time);
@@ -217,22 +206,14 @@ bool proxy::CheckTime(int server_fd,
   if (rep.exp_str != "") {
     time_t curr_time = time(0);
     time_t expire_time = mktime(rep.expire_time.getTimeStruct());
-    std::cout << "curr_time==" << curr_time << std::endl;
-    std::cout << "expire_time==" << expire_time << std::endl;
     if (curr_time > expire_time) {
       Cache.erase(req_line);
-      std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-      std::cout << "expiretime erase cache, cache_size now is===========" << Cache.size()
-                << std::endl;
-
       time_t dead_time = mktime(rep.expire_time.getTimeStruct());
       struct tm * asc_time = gmtime(&dead_time);
       const char * t = asctime(asc_time);
       pthread_mutex_lock(&mutex);
-      std::cout << "expired time in logfile = " << dead_time << std::endl;
       logFile << id << ": in cache, but expired at " << t;
       pthread_mutex_unlock(&mutex);
-
       return false;
     }
   }
@@ -244,7 +225,6 @@ bool proxy::CheckTime(int server_fd,
   logFile << id << ": in cache, valid" << std::endl;
   pthread_mutex_unlock(&mutex);
   return true;
-  //Wed Feb 26 04:09:10 2020
 }
 bool proxy::revalidation(Response & rep, std::string input, int server_fd, int id) {
   if (rep.ETag == "" && rep.LastModified == "") {
@@ -253,16 +233,13 @@ bool proxy::revalidation(Response & rep, std::string input, int server_fd, int i
   std::string changed_input = input;
   if (rep.ETag != "") {
     std::string add_etag = "If-None-Match: " + rep.ETag.append("\r\n");
-    std::cout << "ADD_ETAG: " << add_etag << "end" << std::endl;
     changed_input = changed_input.insert(changed_input.length() - 2, add_etag);
   }
   if (rep.LastModified != "") {
     std::string add_modified = "If-Modified-Since: " + rep.LastModified.append("\r\n");
-    std::cout << "ADD_MODIFIED: " << add_modified << "end" << std::endl;
     changed_input = changed_input.insert(changed_input.length() - 2, add_modified);
   }
   std::string req_msg_str = changed_input;
-  std::cout << "DEBUG Insert after is: " << req_msg_str << "end" << std::endl;
   char req_new_msg[req_msg_str.size() + 1];
   int send_len;
   if ((send_len = send(server_fd, req_new_msg, req_msg_str.size() + 1, 0)) > 0) {
@@ -274,7 +251,6 @@ bool proxy::revalidation(Response & rep, std::string input, int server_fd, int i
     std::cout << "[Verify] received from server failed in checktime" << std::endl;
   }
   std::string checknew(new_resp, new_len);
-  std::cout << "[Verify] new return response: " << checknew << std::endl;
   if (checknew.find("HTTP/1.1 200 OK") != std::string::npos) {
     pthread_mutex_lock(&mutex);
     logFile << id << ": in cache, requires validation" << std::endl;
@@ -294,7 +270,6 @@ void proxy::handlePOST(int client_fd,
     std::string request = sendContentLen(client_fd, req_msg, len, post_len);
     char send_request[request.length() + 1];
     strcpy(send_request, request.c_str());
-    //std::cout << "begin sending to server" << std::endl;
     send(server_fd,
          send_request,
          sizeof(send_request),
@@ -360,11 +335,11 @@ void proxy::handleGet(int client_fd,
     while (1) {  //receive and send remaining message
       int len = recv(server_fd, chunked_msg, sizeof(chunked_msg), 0);
       if (len <= 0) {
-        return;
+        std::cout << "chunked break\n";
+        break;
       }
       send(client_fd, chunked_msg, len, 0);
     }
-    ///////////////////
   }
   else {
     //int content_len = getLength(server_msg, mes_len);  //get content length
@@ -377,20 +352,16 @@ void proxy::handleGet(int client_fd,
     }
     parse_res.ParseField(server_msg, mes_len);
     printnote(parse_res, id);
-    std::cout << "[DEBUG] Check parse_res.Etag is: " << parse_res.ETag << std::endl;
     int content_len = getLength(server_msg, mes_len);  //get content length
     if (content_len != -1) {
-      //std::cout << "\n content_len = " << content_len << std::endl;
       std::string msg = sendContentLen(
           server_fd, server_msg, mes_len, content_len);  //get the entire message
-      std::cout << "QQQQQQQQQQQQQQQQQQQQQQ\n"
-                << "entire msg size : " << msg.length() << std::endl;
+
       if (msg.length() >= 10000000) {
         std::vector<char> large_msg;
         for (size_t i = 0; i < msg.length(); i++) {
           large_msg.push_back(msg[i]);
         }
-        std::cout << "Vector size: " << large_msg.size() << std::endl;
         const char * send_msg = large_msg.data();
         send(client_fd, send_msg, msg.length(), 0);
       }
@@ -399,32 +370,37 @@ void proxy::handleGet(int client_fd,
         msg = msg.append("\0");
         strcpy(send_response, msg.c_str());
         parse_res.setEntireRes(msg);
-        std::cout << "const char size : " << sizeof(send_response) << std::endl;
-        //std::cout << "Send client response is: " << send_response << std::endl;
         send(client_fd, send_response, msg.length(), 0);
       }
     }
     else {
-      std::cout << "no content-length "
-                   "field-----------------Return to client at once"
-                << std::endl;
       std::string server_msg_str(server_msg, mes_len);
       parse_res.setEntireRes(server_msg_str);
       send(client_fd, server_msg, mes_len, 0);
     }
-    std::string logrespond(server_msg, mes_len);
-    size_t log_pos = logrespond.find_first_of("\r\n");
-    std::string log_line = logrespond.substr(0, log_pos);
-    pthread_mutex_lock(&mutex);
-    logFile << id << ": Responding \"" << log_line << "\"" << std::endl;
-    pthread_mutex_unlock(&mutex);
     printcachelog(parse_res, no_store, req_line, id);
+  }
+  std::cout << "Responding for GET\n";
+  std::string logrespond(server_msg, mes_len);
+  size_t log_pos = logrespond.find_first_of("\r\n");
+  std::string log_line = logrespond.substr(0, log_pos);
+  pthread_mutex_lock(&mutex);
+  std::cout << "logfile responding\n";
+  logFile << id << ": Responding \"" << log_line << "\"" << std::endl;
+  pthread_mutex_unlock(&mutex);
+}
+
+void proxy::Check502(std::string entire_msg, int client_fd, int id) {
+  if (entire_msg.find("\r\n\r\n") == std::string::npos) {
+    const char * bad502 = "HTTP/1.1 502 Bad Gateway";
+    send(client_fd, bad502, sizeof(bad502), 0);
+    pthread_mutex_lock(&mutex);
+    logFile << id << ": Responding \"HTTP/1.1 502 Bad Gateway\"" << std::endl;
+    pthread_mutex_unlock(&mutex);
   }
 }
 
 void proxy::printnote(Response & parse_res, int id) {
-  std::cout << "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
-            << std::endl;
   if (parse_res.max_age != -1) {
     pthread_mutex_lock(&mutex);
     logFile << id << ": NOTE Cache-Control: max-age=" << parse_res.max_age << std::endl;
@@ -498,12 +474,10 @@ std::string proxy::sendContentLen(int send_fd,
     if ((len = recv(send_fd, new_server_msg, sizeof(new_server_msg), 0)) <= 0) {
       break;
     }
-    //std::cout << "\n in while loop, received length = " << len << std::endl;
     std::string temp(new_server_msg, len);
     msg += temp;
     total_len += len;
   }
-  //std::cout << "\n after while loop, total length = " << total_len << std::endl;
   return msg;
 }
 
@@ -517,24 +491,18 @@ bool proxy::findChunk(char * server_msg, int mes_len) {
 }
 
 int proxy::getLength(char * server_msg, int mes_len) {
-  //std::cout << "mes_len = " << mes_len << std::endl;
   std::string msg(server_msg, mes_len);
   size_t pos;
   if ((pos = msg.find("Content-Length: ")) != std::string::npos) {
     size_t head_end = msg.find("\r\n\r\n");
-    //std::cout << "head_end=" << head_end << std::endl;
+
     int part_body_len = mes_len - static_cast<int>(head_end) - 8;
-    //std::cout << "cast<head_end>=" << static_cast<int>(head_end) << std::endl;
-    //std::cout << "part_body_len = " << part_body_len << std::endl;
     size_t end = msg.find("\r\n", pos);
     std::string content_len = msg.substr(pos + 16, end - pos - 16);
-    //std::cout << "conten_length string is: " << content_len << std::endl;
-    //std::cout << "string length = " << content_len.length() << std::endl;
     int num = 0;
     for (size_t i = 0; i < content_len.length(); i++) {
       num = num * 10 + (content_len[i] - '0');
     }
-    //std::cout << "calculate num =" << num << std::endl;
     return num - part_body_len - 4;
   }
   return -1;
@@ -567,10 +535,8 @@ void proxy::handleConnect(int client_fd, int server_fd, int id) {
           if (send(fd[1 - i], message, len, 0) <= 0) {
             return;
           }
-          // std::cout << "Error in Sending!\n" << fd[i] << std::endl;
         }
       }
-      // send(fd[1 - actual_i], actual_message, len, 0);
     }
   }
 }
@@ -579,6 +545,5 @@ std::string proxy::getTime() {
   time_t currTime = time(0);
   struct tm * nowTime = gmtime(&currTime);
   const char * t = asctime(nowTime);
-  std::cout << "The current time UTC/GMT is: " << std::string(t) << std::endl;
   return std::string(t);
 }
