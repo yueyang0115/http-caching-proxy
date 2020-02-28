@@ -1,104 +1,123 @@
-METHOD---CONNECT
--https://www.google.com
+METHOD---CONNECT & WARNNING message
+https://www.google.com
 -Action:[Please wait for 3 minutes to see all the CONNECT method finished with the "tunnel closed" results]
-0: "CONNECT www.google.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:11:28 2020
+0: "CONNECT www.google.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:43:58 2020
 0: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
 0: Responding "HTTP/1.1 200 OK"
-1: "CONNECT adservice.google.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:11:31 2020
-1: Requesting "CONNECT adservice.google.com:443 HTTP/1.1" from adservice.google.com
+1: "CONNECT id.google.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:43:58 2020
+1: Requesting "CONNECT id.google.com:443 HTTP/1.1" from id.google.com
 1: Responding "HTTP/1.1 200 OK"
-5: "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:11:31 2020
-5: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
-5: Responding "HTTP/1.1 200 OK"
-1: Tunnel closed
+4: "CONNECT adservice.google.com:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:43:58 2020
+4: Requesting "CONNECT adservice.google.com:443 HTTP/1.1" from adservice.google.com
+4: Responding "HTTP/1.1 200 OK"
+6: "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:43:59 2020
+6: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
+6: Responding "HTTP/1.1 200 OK"
+5: WARNING Invalid Request
+3: WARNING Invalid Request
+2: WARNING Invalid Request
+6: Tunnel closed
 0: Tunnel closed
-5: Tunnel closed
+4: Tunnel closed
+1: Tunnel closed
+
 
 METHOD---GET
 TEST CASE: basic http 
--http://people.duke.edu/~bmr23/ece568/class.html
-0: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:46:31 2020
+http://people.duke.edu/~bmr23/ece568/class.html
+0: "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:52:46 2020
 0: not in cache
 0: Requesting "GET http://people.duke.edu/~bmr23/ece568/class.html HTTP/1.1" from people.duke.edu
 0: Received "HTTP/1.1 200 OK" from people.duke.edu
+0: NOTE ETag: "2ad72e5cf-1b16-59f0d60bcedbc"
+0: NOTE Last-Modified: Fri, 21 Feb 2020 03:11:29 GMT
 0: Responding "HTTP/1.1 200 OK"
-1: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:46:31 2020
+1: "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:52:46 2020
 1: not in cache
 1: Requesting "GET http://people.duke.edu/~bmr23/style.css HTTP/1.1" from people.duke.edu
 1: Received "HTTP/1.1 200 OK" from people.duke.edu
+1: NOTE ETag: "121d834d5-1d6-50166d07258c0"
+1: NOTE Last-Modified: Sun, 24 Aug 2014 21:32:59 GMT
 1: Responding "HTTP/1.1 200 OK"
-2: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:46:31 2020
+2: "GET http://people.duke.edu/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:52:46 2020
 2: not in cache
 2: Requesting "GET http://people.duke.edu/favicon.ico HTTP/1.1" from people.duke.edu
 2: Received "HTTP/1.1 404 Not Found" from people.duke.edu
 2: Responding "HTTP/1.1 404 Not Found"
 
+
 TEST CASE: Chunked Message
--http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx
-0: "GET http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:54:02 2020
+http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx
+0: "GET http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:54:39 2020
 0: not in cache
 0: Requesting "GET http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx HTTP/1.1" from www.httpwatch.com
 0: Received "HTTP/1.1 200 OK" from www.httpwatch.com
 0: not cacheable because it is chunked
 
+
 TEST CASE: "no-store"
--http://www.mocky.io/v2/5e58a7d92f0000851296205a
+http://www.mocky.io/v2/5e58a7d92f0000851296205a
 -Content: Cache-Control: no-store
-0: "GET http://www.mocky.io/v2/5e58a7d92f0000851296205a HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 05:41:45 2020
+0: "GET http://www.mocky.io/v2/5e58a7d92f0000851296205a HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 18:55:46 2020
 0: not in cache
 0: Requesting "GET http://www.mocky.io/v2/5e58a7d92f0000851296205a HTTP/1.1" from www.mocky.io
 0: Received "HTTP/1.1 200 OK" from www.mocky.io
 0: Responding "HTTP/1.1 200 OK"
 0: not cacheable becaues NO STORE
 
+
 TEST CASE: "Max-age"
--http://www.mocky.io/v2/5e5892de2f00006d0b961fdc
+http://www.mocky.io/v2/5e5892de2f00006d0b961fdc
 -Content: Cache-Control: max-age=10
 -Action: 
 - Click the link three times, the first two click in less than 10 seconds, the last two click longer than 10 seconds.
-  0: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:37:48 2020
-  0: not in cache
-  0: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
-  0: Received "HTTP/1.1 200 OK" from www.mocky.io
-  0: Responding "HTTP/1.1 200 OK"
-  0: cached, expires at Fri Feb 28 04:37:58 2020
-  
-  1: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:37:50 2020
-  1: in cache, valid
-  1: Responding "HTTP/1.1 200 OK"
-  2: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:38:11 2020
-  2: in cache, but expired at Fri Feb 28 04:37:58 2020
-  2: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
-  2: Received "HTTP/1.1 200 OK" from www.mocky.io
-  2: Responding "HTTP/1.1 200 OK"
-  2: cached, expires at Fri Feb 28 04:38:21 2020
+0: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:19:56 2020
+0: not in cache
+0: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
+0: Received "HTTP/1.1 200 OK" from www.mocky.io
+0: NOTE Cache-Control: max-age=10
+0: Responding "HTTP/1.1 200 OK"
+0: cached, expires at Fri Feb 28 19:20:06 2020
+1: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:19:59 2020
+1: in cache, valid
+1: Responding "HTTP/1.1 200 OK"
+2: "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:20:10 2020
+2: in cache, but expired at Fri Feb 28 19:20:06 2020
+2: Requesting "GET http://www.mocky.io/v2/5e5892de2f00006d0b961fdc HTTP/1.1" from www.mocky.io
+2: Received "HTTP/1.1 200 OK" from www.mocky.io
+2: NOTE Cache-Control: max-age=10
+2: Responding "HTTP/1.1 200 OK"
+2: cached, expires at Fri Feb 28 19:20:20 2020
+
 
 TEST CASE: "Expires"
--http://www.mocky.io/v2/5e589a932f0000bd0c962006
+http://www.mocky.io/v2/5e589a932f0000bd0c962006
 -Content: Expires: Fri, 28 Feb 2021 04:38:11 GMT
-0: "GET http://www.mocky.io/v2/5e589a932f0000bd0c962006 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:44:15 2020
+0: "GET http://www.mocky.io/v2/5e589a932f0000bd0c962006 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:22:22 2020
 0: not in cache
 0: Requesting "GET http://www.mocky.io/v2/5e589a932f0000bd0c962006 HTTP/1.1" from www.mocky.io
 0: Received "HTTP/1.1 200 OK" from www.mocky.io
+0: NOTE Expires: Fri, 28 Feb 2021 04:38:11 GMT
 0: Responding "HTTP/1.1 200 OK"
 0: cached, expires at Fri, 28 Feb 2021 04:38:11 GMT
-1: "GET http://www.mocky.io/v2/5e589a932f0000bd0c962006 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:44:24 2020
+1: "GET http://www.mocky.io/v2/5e589a932f0000bd0c962006 HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:22:27 2020
 1: in cache, valid
 1: Responding "HTTP/1.1 200 OK"
 
+
 METHOD---POST
--http://httpbin.org/forms/post
-0: "GET http://httpbin.org/forms/post HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:46:45 2020
+http://httpbin.org/forms/post
+0: "GET http://httpbin.org/forms/post HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:23:54 2020
 0: not in cache
 0: Requesting "GET http://httpbin.org/forms/post HTTP/1.1" from httpbin.org
 0: Received "HTTP/1.1 200 OK" from httpbin.org
 0: Responding "HTTP/1.1 200 OK"
-1: "GET http://httpbin.org/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:46:45 2020
+1: "GET http://httpbin.org/favicon.ico HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:23:54 2020
 1: not in cache
 1: Requesting "GET http://httpbin.org/favicon.ico HTTP/1.1" from httpbin.org
 1: Received "HTTP/1.1 404 NOT FOUND" from httpbin.org
 1: Responding "HTTP/1.1 404 NOT FOUND"
-2: "POST http://httpbin.org/post HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 04:46:54 2020
+2: "POST http://httpbin.org/post HTTP/1.1" from 10.197.65.160 @ Fri Feb 28 19:24:00 2020
 2: Requesting "POST http://httpbin.org/post HTTP/1.1" from httpbin.org
 2: Received "POST http://httpbin.org/post HTTP/1.1" from httpbin.org
 2: Responding "POST http://httpbin.org/post HTTP/1.1

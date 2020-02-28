@@ -197,14 +197,14 @@ bool proxy::CheckTime(int server_fd,
 
   if (rep.max_age != -1) {
     time_t curr_time = time(0);
-    time_t rep_time = mktime(rep.response_time.getTimeStruct()) - 18000;
+    time_t rep_time = mktime(rep.response_time.getTimeStruct());
     int max_age = rep.max_age;
     if (rep_time + max_age <= curr_time) {
       Cache.erase(req_line);
       std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
       std::cout << "max_age erase cache, cache_size now is===========" << Cache.size()
                 << std::endl;
-      time_t dead_time = mktime(rep.response_time.getTimeStruct()) + rep.max_age - 18000;
+      time_t dead_time = mktime(rep.response_time.getTimeStruct()) + rep.max_age;
       struct tm * asc_time = gmtime(&dead_time);
       const char * t = asctime(asc_time);
       pthread_mutex_lock(&mutex);
@@ -216,7 +216,7 @@ bool proxy::CheckTime(int server_fd,
 
   if (rep.exp_str != "") {
     time_t curr_time = time(0);
-    time_t expire_time = mktime(rep.expire_time.getTimeStruct()) - 18000;
+    time_t expire_time = mktime(rep.expire_time.getTimeStruct());
     std::cout << "curr_time==" << curr_time << std::endl;
     std::cout << "expire_time==" << expire_time << std::endl;
     if (curr_time > expire_time) {
@@ -225,7 +225,7 @@ bool proxy::CheckTime(int server_fd,
       std::cout << "expiretime erase cache, cache_size now is===========" << Cache.size()
                 << std::endl;
 
-      time_t dead_time = mktime(rep.expire_time.getTimeStruct()) - 18000;
+      time_t dead_time = mktime(rep.expire_time.getTimeStruct());
       struct tm * asc_time = gmtime(&dead_time);
       const char * t = asctime(asc_time);
       pthread_mutex_lock(&mutex);
@@ -464,7 +464,7 @@ void proxy::printcachelog(Response & parse_res,
     }
     if (parse_res.max_age != -1) {
       time_t dead_time =
-          mktime(parse_res.response_time.getTimeStruct()) + parse_res.max_age - 18000;
+          mktime(parse_res.response_time.getTimeStruct()) + parse_res.max_age;
       struct tm * asc_time = gmtime(&dead_time);
       const char * t = asctime(asc_time);
       pthread_mutex_lock(&mutex);
