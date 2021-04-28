@@ -1,7 +1,7 @@
 This projects builds a HTTP caching proxy server which can handle GET, POST, CONNECT requests.
 * We added concurrency to handle requests from different endpoints. 
 * We used TCP sockets to send and receive packets.
-* We dached responses according to validation and expiration rules defined in RFC7234.
+* We cached responses according to validation and expiration rules defined in RFC7234.
 
 This project is deployed with docker, to run this app, cd into the docker-deploy folder. Then run 
 ```
